@@ -1,19 +1,10 @@
 import { useState } from "react"
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom"
-/* buraya etkinlikler sayfası gelecek */
 import Navbar from "@/components/navbar"
 import Register from "@/pages/register"
 import InterestSelect from "@/pages/InterestsSelect"
 import EventsPage from "@/pages/events"
 import CalendarPage from "./pages/calendar"
-import FikirlerPage from "./pages/fikirler"
-import TaleplerPage from "./pages/talepler"
-/* buraya etkinlikler sayfası gelecek */
-import ProfileDashboard from "./pages/profile"
-/* Admin Sayfaları */
-import IdeasPage from "./pages/AdminPages/fikirSecimPage"
-import EtkinlikTalepOnayPage from "./pages/AdminPages/talepEtkinlikOnayPage"
-
 
 type Profile = {
   firstName: string; lastName: string; email: string;
@@ -83,6 +74,8 @@ export default function App() {
               }
             />
             <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/requests" element={<RequestsPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             {/* default: /register’a yönlendir */}
             <Route path="*" element={<Navigate to="/register" replace />} />
           </Routes>
