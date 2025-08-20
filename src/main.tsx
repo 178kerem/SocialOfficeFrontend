@@ -10,16 +10,11 @@ import Navbar from "./components/navbar" // senin navbar bileşenin
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      {/* Üst navbar */}
-      <EventsPage/>
-
-      {/* İçerik */}
-      <main className="flex-1">
+    
+  
         <App />
-      </main>
-    </div>
+     
+  
   </StrictMode>
 )
 
