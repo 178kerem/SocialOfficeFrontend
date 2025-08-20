@@ -6,6 +6,8 @@ import InterestSelect from "@/pages/InterestsSelect"
 import EventsPage from "@/pages/events"
 import CalendarPage from "./pages/calendar"
 import { Calendar } from "lucide-react"
+import NotificationsPage from "@/pages/bildirimler"
+import RequestsPage from "./pages/requestEvents" // 👈 ekle
 
 type Profile = {
   firstName: string; lastName: string; email: string;
@@ -75,6 +77,8 @@ export default function App() {
               }
             />
             <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/requests" element={<RequestsPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             {/* default: /register’a yönlendir */}
             <Route path="*" element={<Navigate to="/register" replace />} />
           </Routes>
