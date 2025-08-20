@@ -389,20 +389,36 @@ export default function FikirlerPage() {
       {/* Sağ altta FAB */}
       <button
         onClick={() => setOpen(true)}
-        className="group fixed bottom-6 right-6 inline-flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg ring-1 ring-slate-900/10 transition-[transform,box-shadow] duration-300 ease-out bg-slate-900 hover:-translate-y-1 hover:scale-110 hover:shadow-xl active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 motion-reduce:hover:transform-none"
         aria-label="İş fikri öner"
         title="İş fikri öner"
-        >
-        {/* Dıştaki gökkuşağı dalgası (ring) */}
+        className="group fixed bottom-6 right-6 outline-none"  // <- sadece fixed
+      >
+        {/* Rainbow halo */}
         <span
-            aria-hidden
-            className="pointer-events-none absolute inset-0 rounded-full opacity-0 blur-[2px] transition-opacity duration-300 group-hover:opacity-100 animate-rainbow"
+          className="
+            pointer-events-none absolute inset-0 -m-[3px] rounded-full
+            bg-[conic-gradient(at_top_left,_#06b6d4,_#22c55e,_#f59e0b,_#ef4444,_#8b5cf6,_#06b6d4)]
+            opacity-0 blur-[1.5px]
+            transition-opacity duration-300
+            group-hover:opacity-90
+            group-hover:animate-[spin_3s_linear_infinite]
+          "
         />
-        {/* İç dolguyu sabit tutup ringi görünür kılmak için */}
-        <span aria-hidden className="pointer-events-none absolute inset-[2px] rounded-full bg-slate-900" />
-        <Plus className="relative z-10 h-6 w-6" />
-        </button>
 
+        {/* Button face */}
+        <span
+          className="
+            relative z-10 inline-flex h-14 w-14 items-center justify-center rounded-full
+            bg-slate-900 text-white shadow-lg ring-1 ring-slate-900/10
+            transition-all duration-300 will-change-transform
+            group-hover:scale-110 group-hover:-translate-y-0.5
+            group-hover:bg-white group-hover:text-slate-900
+            focus-visible:ring-4 focus-visible:ring-sky-300/30
+          "
+        >
+          <Plus className="h-6 w-6 transition-transform duration-300 group-hover:rotate-90" />
+        </span>
+      </button>
 
       {/* Yeni fikir modalı */}
       <Modal open={open} onClose={() => setOpen(false)} title="Yeni İş Fikri">
