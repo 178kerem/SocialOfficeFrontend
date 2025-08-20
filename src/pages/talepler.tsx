@@ -70,6 +70,24 @@ const seed: RequestItem[] = [
   },
 ];
 
+/* ——— AnimatedNumber: sayı değişiminde yumuşak geçiş ——— */
+function AnimatedNumber({ value, className = "" }: { value: number; className?: string }) {
+  return (
+    <AnimatePresence initial={false} mode="popLayout">
+      <motion.span
+        key={value}
+        initial={{ y: 8, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: -8, opacity: 0 }}
+        transition={{ duration: 0.18 }}
+        className={className}
+      >
+        {value}
+      </motion.span>
+    </AnimatePresence>
+  );
+}
+
 /* ——— Reusable searchable combobox ——— */
 function SearchSelect({
   label,
@@ -104,8 +122,8 @@ function SearchSelect({
     document.addEventListener("mousedown", onDoc, { capture: true });
     document.addEventListener("touchstart", onDoc, { capture: true });
     return () => {
-      document.removeEventListener("mousedown", onDoc, { capture: true } as any);
-      document.removeEventListener("touchstart", onDoc, { capture: true } as any);
+      document.removeEventListener("mousedown", onDoc as any, { capture: true } as any);
+      document.removeEventListener("touchstart", onDoc as any, { capture: true } as any);
     };
   }, []);
 
@@ -154,14 +172,13 @@ function SearchSelect({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
               transition={{ duration: 0.15 }}
-              className={`absolute z-[${z}] mt-1 w-full rounded-xl border border-slate-200 bg-white shadow-lg ring-1 ring-slate-900/5`}
+              className="absolute mt-1 w-full rounded-xl border border-slate-200 bg-white shadow-lg ring-1 ring-slate-900/5"
+              style={{ zIndex: z }}               
               onMouseDown={(e) => e.preventDefault()}
             >
               <div className="max-h-52 overflow-auto py-1">
                 {filtered.length === 0 ? (
-                  <div className="px-3 py-2 text-xs text-slate-500">
-                    Eşleşen seçenek yok
-                  </div>
+                  <div className="px-3 py-2 text-xs text-slate-500">Eşleşen seçenek yok</div>
                 ) : (
                   filtered.map((opt) => (
                     <button
@@ -196,6 +213,15 @@ function RequestCard({
   const upActive = choice === "up";
   const downActive = choice === "down";
 
+  // hızlı çift tıklamayı frenlemek için mini cooldown
+  const [cool, setCool] = useState(false);
+  const safeVote = (dir: "up" | "down") => {
+    if (cool) return;
+    onVote(item.id, dir);
+    setCool(true);
+    setTimeout(() => setCool(false), 300);
+  };
+
   return (
     <motion.div
       layout
@@ -216,34 +242,48 @@ function RequestCard({
 
       <div className="mt-3 flex items-center gap-3">
         {/* LIKE */}
-        <button
-          onClick={() => onVote(item.id, "up")}
+        <motion.button
+          onClick={() => safeVote("up")}
+          whileHover={{ scale: 1.05, y: -1 }}
+          whileTap={{ scale: 0.95 }}
+          animate={{
+            boxShadow: upActive ? "0 10px 24px rgba(16,185,129,0.28)" : "0 0 0 rgba(0,0,0,0)",
+          }}
+          transition={{ type: "spring", stiffness: 600, damping: 30 }}
           className={[
             ui.stat,
-            "border border-emerald-200 transition-colors",
-            upActive ? "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200" : "",
+            "border border-emerald-200 ring-1 ring-emerald-100 transition-colors",
+            upActive ? "bg-emerald-100 text-emerald-800" : "hover:bg-emerald-50",
           ].join(" ")}
           aria-pressed={upActive}
           title={upActive ? "Beğeniyi geri al" : "Beğen"}
+          disabled={cool}
         >
           <ThumbsUp className="h-4 w-4 text-emerald-600" />
-          {item.up}
-        </button>
+          <AnimatedNumber value={item.up} className="tabular-nums" />
+        </motion.button>
 
         {/* DISLIKE */}
-        <button
-          onClick={() => onVote(item.id, "down")}
+        <motion.button
+          onClick={() => safeVote("down")}
+          whileHover={{ scale: 1.05, y: -1 }}
+          whileTap={{ scale: 0.95 }}
+          animate={{
+            boxShadow: downActive ? "0 10px 24px rgba(244,63,94,0.28)" : "0 0 0 rgba(0,0,0,0)",
+          }}
+          transition={{ type: "spring", stiffness: 600, damping: 30 }}
           className={[
             ui.stat,
-            "border border-rose-200 transition-colors",
-            downActive ? "bg-rose-100 text-rose-800 ring-1 ring-rose-200" : "",
+            "border border-rose-200 ring-1 ring-rose-100 transition-colors",
+            downActive ? "bg-rose-100 text-rose-800" : "hover:bg-rose-50",
           ].join(" ")}
           aria-pressed={downActive}
           title={downActive ? "Beğenmeyi geri al" : "Beğenme"}
+          disabled={cool}
         >
           <ThumbsDown className="h-4 w-4 text-rose-600" />
-          {item.down}
-        </button>
+          <AnimatedNumber value={item.down} className="tabular-nums" />
+        </motion.button>
       </div>
     </motion.div>
   );
@@ -277,10 +317,7 @@ export default function TaleplerPage() {
 
   const save = () => {
     if (!form.title.trim() || !form.description.trim()) return;
-    setList((p) => [
-      { id: crypto.randomUUID(), up: 0, down: 0, ...form },
-      ...p,
-    ]);
+    setList((p) => [{ id: crypto.randomUUID(), up: 0, down: 0, ...form }, ...p]);
     setOpen(false);
     setForm({ unit: "A Birimi", dept: "BT", title: "", description: "" });
   };
@@ -289,8 +326,7 @@ export default function TaleplerPage() {
   const vote = (id: string, dir: "up" | "down") => {
     setVotes((prev) => {
       const prevChoice = prev[id] ?? null;
-      const nextChoice: "up" | "down" | null =
-        prevChoice === dir ? null : dir;
+      const nextChoice: "up" | "down" | null = prevChoice === dir ? null : dir;
 
       // list sayıları ile senkron güncelle
       setList((current) =>
@@ -313,10 +349,7 @@ export default function TaleplerPage() {
             } else down += 1;
           }
 
-          // emniyet: negatif olmasın
-          up = Math.max(0, up);
-          down = Math.max(0, down);
-          return { ...it, up, down };
+          return { ...it, up: Math.max(0, up), down: Math.max(0, down) };
         })
       );
 
@@ -329,30 +362,14 @@ export default function TaleplerPage() {
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         {/* Başlık */}
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-800">
-            Talepler
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-800">Talepler</h1>
         </div>
 
         {/* Filtreler */}
         <div className={`${ui.panel} relative z-30 mb-6 p-4`}>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <SearchSelect
-              label="Birim"
-              value={unit}
-              options={units}
-              onChange={setUnit}
-              placeholder="Birim seç…"
-              z={60}
-            />
-            <SearchSelect
-              label="Departman"
-              value={dept}
-              options={departments}
-              onChange={setDept}
-              placeholder="Departman seç…"
-              z={60}
-            />
+            <SearchSelect label="Birim" value={unit} options={units} onChange={setUnit} placeholder="Birim seç…" z={60} />
+            <SearchSelect label="Departman" value={dept} options={departments} onChange={setDept} placeholder="Departman seç…" z={60} />
           </div>
         </div>
 
@@ -360,12 +377,7 @@ export default function TaleplerPage() {
         <div className="grid grid-cols-1 gap-4">
           <AnimatePresence initial={false}>
             {filtered.map((r) => (
-              <RequestCard
-                key={r.id}
-                item={r}
-                choice={votes[r.id] ?? null}
-                onVote={vote}
-              />
+              <RequestCard key={r.id} item={r} choice={votes[r.id] ?? null} onVote={vote} />
             ))}
           </AnimatePresence>
           {filtered.length === 0 && (
@@ -416,19 +428,14 @@ export default function TaleplerPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <div
-              className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
-              onClick={() => setOpen(false)}
-            />
+            <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm" onClick={() => setOpen(false)} />
             <motion.div
               initial={{ y: 16, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 16, opacity: 0 }}
               className={`${ui.panel} relative w-full max-w-lg rounded-2xl p-5`}
             >
-              <h3 className="mb-3 text-lg font-semibold text-slate-800">
-                Yeni Talep
-              </h3>
+              <h3 className="mb-3 text-lg font-semibold text-slate-800">Yeni Talep</h3>
 
               <div className="grid grid-cols-1 gap-3">
                 <div className="z-40">
@@ -450,9 +457,7 @@ export default function TaleplerPage() {
                   <span className="text-slate-600">Başlık</span>
                   <input
                     value={form.title}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, title: e.target.value }))
-                    }
+                    onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                     placeholder="Kısa bir başlık…"
                     className="rounded-xl border border-slate-200 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
                   />
@@ -462,9 +467,7 @@ export default function TaleplerPage() {
                   <span className="text-slate-600">Açıklama</span>
                   <textarea
                     value={form.description}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, description: e.target.value }))
-                    }
+                    onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                     placeholder="Talebi kısaca anlat…"
                     rows={4}
                     className="rounded-xl border border-slate-200 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-200"
