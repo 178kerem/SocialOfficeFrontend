@@ -64,8 +64,9 @@ export default function Navbar({
     <nav
       aria-label="Primary"
       className={[
-        "group/nav z-40 h-screen",
+        "group/nav peer/nav z-40 h-screen", 
         fixed ? "fixed left-0 top-0" : "",
+        
       ].join(" ")}
     >
       {/* Genişlik animasyonu (dar → geniş) */}

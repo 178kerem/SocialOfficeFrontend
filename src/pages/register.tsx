@@ -11,19 +11,36 @@ type FormState = {
   password2: string
 }
 
-export default function Register() {
-  const [form, setForm] = useState<FormState>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    sicil: "",
-    dept: "",
-    unit: "",
-    password: "",
-    password2: "",
-  })
+type RegisterProps = {
+  onSuccess?: (data: FormState) => void
+}
+
+const initialForm: FormState = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  sicil: "",
+  dept: "",
+  unit: "",
+  password: "",
+  password2: "",
+}
+
+const initialTouched: Record<keyof FormState, boolean> = {
+  firstName: false,
+  lastName: false,
+  email: false,
+  sicil: false,
+  dept: false,
+  unit: false,
+  password: false,
+  password2: false,
+}
+
+export default function Register({ onSuccess }: RegisterProps) {
+  const [form, setForm] = useState<FormState>(initialForm)
   const [submitting, setSubmitting] = useState(false)
-  const [touched, setTouched] = useState<Record<keyof FormState, boolean>>({} as any)
+  const [touched, setTouched] = useState(initialTouched)
 
   const errors = useMemo(() => {
     const e: Partial<Record<keyof FormState, string>> = {}
@@ -59,7 +76,7 @@ export default function Register() {
     e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>
   ) {
     const { name } = e.target
-    setTouched((t) => ({ ...t, [name]: true }))
+    setTouched((t) => ({ ...t, [name]: true } as typeof t))
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -80,7 +97,9 @@ export default function Register() {
       setSubmitting(true)
       // TODO: API entegrasyonu
       // await fetch("/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) })
-      alert("Form gönderildi (örnek).")
+
+      // akış: başarıyla kaydolunca bir sonraki adıma geç
+      onSuccess?.(form)
     } finally {
       setSubmitting(false)
     }
@@ -103,12 +122,13 @@ export default function Register() {
           </div>
 
           {/* Form */}
-          <form onSubmit={onSubmit} className="space-y-3">
+          <form onSubmit={onSubmit} noValidate className="space-y-3">
             {/* Ad Soyad */}
             <div className="grid grid-cols-2 gap-3">
               <Input
                 name="firstName"
                 placeholder="Ad"
+                autoComplete="given-name"
                 value={form.firstName}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -117,6 +137,7 @@ export default function Register() {
               <Input
                 name="lastName"
                 placeholder="Soyad"
+                autoComplete="family-name"
                 value={form.lastName}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -129,6 +150,7 @@ export default function Register() {
               name="email"
               type="email"
               placeholder="ad.soyad@tubitak.gov.tr"
+              autoComplete="email"
               value={form.email}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -145,6 +167,7 @@ export default function Register() {
             <Input
               name="sicil"
               placeholder="Sicil No"
+              autoComplete="off"
               value={form.sicil}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -178,6 +201,7 @@ export default function Register() {
               name="password"
               type="password"
               placeholder="Şifre"
+              autoComplete="new-password"
               value={form.password}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -188,6 +212,7 @@ export default function Register() {
               name="password2"
               type="password"
               placeholder="Şifre Tekrar"
+              autoComplete="new-password"
               value={form.password2}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -223,6 +248,7 @@ function Input(props: {
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void
   placeholder?: string
   type?: string
+  autoComplete?: string
   leftIcon?: React.ReactNode
   error?: string | false
 }) {
@@ -237,6 +263,7 @@ function Input(props: {
         )}
         <input
           {...rest}
+          aria-invalid={!!error}
           className={[
             "w-full rounded border px-3 py-1.5 text-sm outline-none",
             leftIcon ? "pl-10" : "",
@@ -244,7 +271,7 @@ function Input(props: {
           ].join(" ")}
         />
       </div>
-      {error ? <p className="text-[11px] text-red-600">{error}</p> : null}
+      {error ? <p className="text-[11px] text-red-600" role="alert">{error}</p> : null}
     </div>
   )
 }
@@ -264,6 +291,7 @@ function Select(props: {
       <div className="relative">
         <select
           {...rest}
+          aria-invalid={!!error}
           className={[
             "w-full appearance-none rounded border bg-white py-1.5 pl-3 pr-8 text-sm outline-none",
             error ? "border-red-400 focus:border-red-400 ring-2 ring-red-100" : "border-slate-300 focus:border-slate-400 ring-2 ring-transparent focus:ring-blue-200",
@@ -276,11 +304,11 @@ function Select(props: {
         </select>
         <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500">
           <svg aria-hidden viewBox="0 0 20 20" className="h-4 w-4" fill="currentColor">
-            <path d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" />
+            <path d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01.02-1.06z" />
           </svg>
         </span>
       </div>
-      {error ? <p className="text-[11px] text-red-600">{error}</p> : null}
+      {error ? <p className="text-[11px] text-red-600" role="alert">{error}</p> : null}
     </div>
   )
 }
