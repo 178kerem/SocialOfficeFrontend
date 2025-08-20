@@ -1,22 +1,27 @@
-import { useState } from "react"
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom"
-import Navbar from "@/components/navbar"
-import Register from "@/pages/register"
-import InterestSelect from "@/pages/InterestsSelect"
-import EventsPage from "@/pages/events"
-import CalendarPage from "./pages/calendar"
-import RequestsPagefrom from "./pages/requestEvents"   
-import NotificationsPage from "./pages/bildirimler"
-import SettingsPage from "@/pages/settings"
+import { useState } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import Navbar from "@/components/navbar";
+import Register from "@/pages/register";
+import InterestSelect from "@/pages/InterestsSelect";
+import EventsPage from "@/pages/events";
+import CalendarPage from "./pages/calendar";
+import RequestsPage from "./pages/requestEvents";
+import NotificationsPage from "./pages/bildirimler";
+import FikirlerPage from "./pages/fikirler";
+import TaleplerPage from "./pages/talepler";
+import ProfileDashboard from "./pages/profile";
+import IdeasPage from "./pages/AdminPages/fikirSecimPage";
+import EtkinlikTalepOnayPage from "./pages/AdminPages/talepEtkinlikOnayPage";
+
 type Profile = {
   firstName: string; lastName: string; email: string;
-  sicil: string; dept: string; unit: string
-}
+  sicil: string; dept: string; unit: string;
+};
 
 export default function App() {
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [interests, setInterests] = useState<string[]>([])
-  const navigate = useNavigate()
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [interests, setInterests] = useState<string[]>([]);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -27,13 +32,14 @@ export default function App() {
       <div className="ml-16 peer-hover/nav:ml-64 transition-[margin-left] duration-300">
         <div className="min-h-screen">
           <Routes>
+            {/* Hepsi KİLİTSİZ */}
             <Route
               path="/register"
               element={
                 <Register
                   onSuccess={(form) => {
-                    setProfile(form)
-                    navigate("/interests")
+                    setProfile(form);
+                    navigate("/interests");
                   }}
                 />
               }
@@ -45,8 +51,8 @@ export default function App() {
                 <InterestSelect
                   initial={interests}
                   onDone={(sel) => {
-                    setInterests(sel)
-                    navigate("/events")
+                    setInterests(sel);
+                    navigate("/events");
                   }}
                 />
               }
@@ -58,9 +64,13 @@ export default function App() {
                 <div className="p-6">
                   <div className="mb-4 flex items-center justify-between">
                     <div className="text-sm text-slate-600">
-                      {profile
-                        ? (<><b>{profile.firstName} {profile.lastName}</b> • {profile.email} • {interests.length} ilgi alanı</>)
-                        : "Profil bilgisi yok"}
+                      {profile ? (
+                        <>
+                          <b>{profile.firstName} {profile.lastName}</b> • {profile.email} • {interests.length} ilgi alanı
+                        </>
+                      ) : (
+                        "Profil bilgisi yok"
+                      )}
                     </div>
                     <button
                       onClick={() => alert("Profil kaydedildi (örnek).")}
@@ -70,20 +80,27 @@ export default function App() {
                     </button>
                   </div>
 
-                  {/* Events içeriği — Navbar bu dosyada değil */}
                   <EventsPage />
                 </div>
               }
             />
+
             <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/requests" element={<RequestsPagefrom />} />
+            <Route path="/requests" element={<RequestsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
-            {/* default: /register’a yönlendir */}
-            <Route path="*" element={<Navigate to="/register" replace />} />
-            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/profile" element={<ProfileDashboard />} />
+            <Route path="/fikirler" element={<FikirlerPage />} />
+            <Route path="/talepler" element={<TaleplerPage />} />
+
+            <Route path="/admin/fikir-secim" element={<IdeasPage />} />
+            <Route path="/admin/talep-etkinlik-onay" element={<EtkinlikTalepOnayPage />} />
+
+            {/* Default yönlendirmeler */}
+            <Route path="/" element={<Navigate to="/events" replace />} />
+            <Route path="*" element={<Navigate to="/events" replace />} />
           </Routes>
         </div>
       </div>
     </div>
-  )
+  );
 }
