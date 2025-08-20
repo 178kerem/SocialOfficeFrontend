@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import SoftProgress from "./components/progressBar";
+import SoftProgress from "../components/progressBar";
 import {
   Calendar,
   MapPin,
@@ -361,7 +361,7 @@ function Tabs() {
 }
 
 /* ——— Sayfa ——— */
-export default function Dashboard() {
+export default function ProfileDashboard() {
   return (
     <div className="container mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
       {/* Profil */}

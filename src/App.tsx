@@ -1,11 +1,19 @@
 import { useState } from "react"
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom"
+/* buraya etkinlikler sayfası gelecek */
 import Navbar from "@/components/navbar"
 import Register from "@/pages/register"
 import InterestSelect from "@/pages/InterestsSelect"
 import EventsPage from "@/pages/events"
 import CalendarPage from "./pages/calendar"
-import { Calendar } from "lucide-react"
+import FikirlerPage from "./pages/fikirler"
+import TaleplerPage from "./pages/talepler"
+/* buraya etkinlikler sayfası gelecek */
+import ProfileDashboard from "./pages/profile"
+/* Admin Sayfaları */
+import IdeasPage from "./pages/AdminPages/fikirSecimPage"
+import EtkinlikTalepOnayPage from "./pages/AdminPages/talepEtkinlikOnayPage"
+
 
 type Profile = {
   firstName: string; lastName: string; email: string;

@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react"
-import Navbar from "@/components/navbar"
 import EventCard from "@/components/EventCardNew"
 import type { EventItem } from "@/components/EventCardNew"
 
@@ -117,9 +116,6 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Sol sabit nav (root'unda group/nav peer/nav olmalı) */}
-      <Navbar activeId="calendar" fixed />
-
       {/* İçerik: nav dar (w-16) iken ml-16, hover'da ml-64 */}
       <div className="ml-16 peer-hover/nav:ml-64 transition-[margin-left] duration-300">
         <div className="max-w-7xl mx-auto px-4 pt-6 pb-10">
