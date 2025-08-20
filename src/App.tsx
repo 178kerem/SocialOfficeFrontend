@@ -5,9 +5,6 @@ import Register from "@/pages/register"
 import InterestSelect from "@/pages/InterestsSelect"
 import EventsPage from "@/pages/events"
 import CalendarPage from "./pages/calendar"
-import { Calendar } from "lucide-react"
-import NotificationsPage from "@/pages/bildirimler"
-import RequestsPage from "./pages/requestEvents" // 👈 ekle
 
 type Profile = {
   firstName: string; lastName: string; email: string;
