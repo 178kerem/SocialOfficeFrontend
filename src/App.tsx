@@ -5,7 +5,9 @@ import Register from "@/pages/register"
 import InterestSelect from "@/pages/InterestsSelect"
 import EventsPage from "@/pages/events"
 import CalendarPage from "./pages/calendar"
-
+import RequestsPagefrom from "./pages/requestEvents"   
+import NotificationsPage from "./pages/bildirimler"
+import SettingsPage from "@/pages/settings"
 type Profile = {
   firstName: string; lastName: string; email: string;
   sicil: string; dept: string; unit: string
@@ -74,10 +76,11 @@ export default function App() {
               }
             />
             <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/requests" element={<RequestsPage />} />
+            <Route path="/requests" element={<RequestsPagefrom />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             {/* default: /register’a yönlendir */}
             <Route path="*" element={<Navigate to="/register" replace />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </div>
       </div>
