@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "@/components/navbar";
-import Register from "@/pages/register";
+import Register from "@/pages/LoginRegister/register";
 import InterestSelect from "@/pages/InterestsSelect";
 import EventsPage from "@/pages/events";
 import CalendarPage from "./pages/calendar";
@@ -16,6 +16,8 @@ import SettingsPage from "./pages/settings";
 import Login from "./pages/login";
 import IlgiTakip from "./pages/AdminPages/ilgiAlanıtakip";   
 import EtkinlikOnOnayPage from "./pages/AdminPages/talepEdilenEtkinliklerOnOnay";
+
+
 
 type Profile = {
   firstName: string; 
@@ -66,6 +68,7 @@ export default function App() {
               }
             />
 
+
             <Route
               path="/events"
               element={
@@ -87,20 +90,35 @@ export default function App() {
               }
             />
 
+
+            <Route path="/events"element={<EventsPage />}/>
+
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/requests" element={<RequestsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/profile" element={<ProfileDashboard />} />
             <Route path="/fikirler" element={<FikirlerPage />} />
             <Route path="/talepler" element={<TaleplerPage />} />
+
             <Route path="/admin/etkinlik-on-onay" element={<EtkinlikOnOnayPage />} />
 
 
             <Route path="/admin/fikir-secim" element={<IdeasPage />} />
-            <Route path="/admin/talep-etkinlik-onay" element={<EtkinlikTalepOnayPage />} />
+           
             <Route path="/admin/ilgi-alani-takip" element={<IlgiTakip />} />   
 
             {/* Default yönlendirmeler */}
+
+            <Route path="/login" element={<Login />} />
+             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/admin/fikir-secim" element={<IdeasPage />} />
+            <Route path="/admin/talep-etkinlik-onay" element={<EtkinlikTalepOnayPage />} />
+            <Route path="/ayarlar" element={<SettingsPage />} />
+            
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
+
             <Route path="/" element={<Navigate to="/register" replace />} />
             <Route path="*" element={<Navigate to="/events" replace />} />
           </Routes>
