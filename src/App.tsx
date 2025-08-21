@@ -12,7 +12,7 @@ import TaleplerPage from "./pages/talepler";
 import ProfileDashboard from "./pages/profile";
 import IdeasPage from "./pages/AdminPages/fikirSecimPage";
 import EtkinlikTalepOnayPage from "./pages/AdminPages/talepEtkinlikOnayPage";
-
+import Login from "./pages/login";
 type Profile = {
   firstName: string; lastName: string; email: string;
   sicil: string; dept: string; unit: string;
@@ -72,12 +72,7 @@ export default function App() {
                         "Profil bilgisi yok"
                       )}
                     </div>
-                    <button
-                      onClick={() => alert("Profil kaydedildi (örnek).")}
-                      className="rounded-lg bg-emerald-600 text-white text-sm font-medium px-3 py-2 hover:bg-emerald-700"
-                    >
-                      Profili Kaydet
-                    </button>
+                   
                   </div>
 
                   <EventsPage />
@@ -94,9 +89,9 @@ export default function App() {
 
             <Route path="/admin/fikir-secim" element={<IdeasPage />} />
             <Route path="/admin/talep-etkinlik-onay" element={<EtkinlikTalepOnayPage />} />
-
+            <Route path="/login" element={<Login onSuccess={() => navigate("/events")} />} />
             {/* Default yönlendirmeler */}
-            <Route path="/" element={<Navigate to="/events" replace />} />
+            <Route path="/" element={<Navigate to="/register" replace />} />
             <Route path="*" element={<Navigate to="/events" replace />} />
           </Routes>
         </div>
