@@ -11,9 +11,13 @@ import {
   Plus,
   X,
   Search,
+  History,
+  BarChart3,
+  Star,
+  Users,
 } from "lucide-react";
 
-/* ----------------- Tipler & seed ----------------- */
+/* ----------------- Tipler ----------------- */
 type Scope = "Birim" | "Departman" | "Kurumsal";
 
 type RequestItem = {
@@ -30,9 +34,29 @@ type RequestItem = {
   createdAt: string; // ISO
 };
 
-type ItemWithVote = RequestItem & { userVote: 1 | -1 | 0 };
+type ItemWithVote = RequestItem & {
+  userVote: 1 | -1 | 0;
+  /** Kontenjan (opsiyonel) */
+  capacity?: number | null; // toplam kontenjan (null/undefined: sınırsız)
+  enrolled?: number; // kayıtlı kişi
+};
+
 type SortKey = "newest" | "oldest" | "mostNet" | "mostUp";
 
+type RatingDist = { [stars: number]: number }; // 5..1
+type PastEvent = {
+  id: number;
+  ad: string;
+  tarih: string; // "YYYY-MM-DD"
+  kategori: string;
+  konum: string;
+  katilim: number;
+  puanOrt: number; // 0-5
+  puanSay: number;
+  dagilim: RatingDist;
+};
+
+/* ----------------- Seed verileri ----------------- */
 const seed: RequestItem[] = [
   {
     id: 1,
@@ -42,8 +66,7 @@ const seed: RequestItem[] = [
     konum: "Kampüs",
     kategori: "Sosyal",
     buyukluk: "Kurumsal",
-    imageUrl:
-      "",
+    imageUrl: "",
     up: 250,
     down: 20,
     createdAt: "2025-08-15T10:00:00Z",
@@ -74,19 +97,78 @@ const seed: RequestItem[] = [
   },
 ];
 
+const pastSeed: PastEvent[] = [
+  {
+    id: 101,
+    ad: "2024 Bahar Satranç Kupası",
+    tarih: "2024-04-21",
+    kategori: "Sosyal",
+    konum: "Konferans Salonu 2",
+    katilim: 86,
+    puanOrt: 4.6,
+    puanSay: 128,
+    dagilim: { 5: 78, 4: 35, 3: 10, 2: 3, 1: 2 },
+  },
+  {
+    id: 102,
+    ad: "Kurumsal Bisiklet Turu",
+    tarih: "2024-06-15",
+    kategori: "Spor",
+    konum: "Kampüs Çevresi",
+    katilim: 140,
+    puanOrt: 4.8,
+    puanSay: 210,
+    dagilim: { 5: 170, 4: 28, 3: 8, 2: 3, 1: 1 },
+  },
+  {
+    id: 103,
+    ad: "React ile Modern Frontend",
+    tarih: "2025-02-10",
+    kategori: "Eğitim",
+    konum: "Eğitim Salonu A",
+    katilim: 120,
+    puanOrt: 4.5,
+    puanSay: 95,
+    dagilim: { 5: 60, 4: 22, 3: 9, 2: 3, 1: 1 },
+  },
+  {
+    id: 104,
+    ad: "Bilardo Tanışma Günü",
+    tarih: "2024-11-05",
+    kategori: "Sosyal",
+    konum: "Spor Kompleksi - Bilardo Salonu",
+    katilim: 52,
+    puanOrt: 4.2,
+    puanSay: 47,
+    dagilim: { 5: 20, 4: 16, 3: 8, 2: 2, 1: 1 },
+  },
+];
+
 /* ----------------- UI helpers ----------------- */
 const shell = {
   panel:
     "rounded-2xl bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/50 ring-1 ring-slate-200/70 shadow-sm",
 };
 
-function formatDate(isoYmd: string) {
-  const d = new Date(isoYmd + "T00:00:00");
-  return d.toLocaleDateString("tr-TR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
+function cn(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(" ");
+}
+
+function formatDate(input: string | Date) {
+  const d = typeof input === "string" ? new Date(input) : new Date(input);
+  if (Number.isNaN(d.getTime())) return String(input);
+  return d.toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" });
+}
+
+function chipPalette(size: Scope) {
+  switch (size) {
+    case "Birim":
+      return "bg-sky-100 text-sky-800 ring-sky-200";
+    case "Departman":
+      return "bg-violet-100 text-violet-800 ring-violet-200";
+    default:
+      return "bg-emerald-100 text-emerald-800 ring-emerald-200";
+  }
 }
 
 /* ----------------- Animasyonlu sayaç ----------------- */
@@ -164,7 +246,8 @@ function SelectBox({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 4 }}
               transition={{ duration: 0.15 }}
-              className={`absolute z-[${z}] mt-1 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg ring-1 ring-slate-900/5`}
+              style={{ zIndex: z }} // dinamik z-index
+              className="absolute mt-1 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg ring-1 ring-slate-900/5"
               role="listbox"
             >
               <div className="max-h-56 overflow-auto py-1">
@@ -178,10 +261,10 @@ function SelectBox({
                       onChange(opt.value);
                       setOpen(false);
                     }}
-                    className={[
+                    className={cn(
                       "block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 focus:outline-none",
-                      opt.value === value ? "bg-slate-50" : "",
-                    ].join(" ")}
+                      opt.value === value && "bg-slate-50"
+                    )}
                   >
                     {opt.label}
                   </button>
@@ -195,15 +278,12 @@ function SelectBox({
   );
 }
 
-/* ----------------- Oy vurgulu kart (animasyonlu) ----------------- */
-function RequestCard({
-  it,
-  vote,
-}: {
-  it: ItemWithVote;
-  vote: (id: number, dir: 1 | -1) => void;
-}) {
+/* ----------------- RequestCard ----------------- */
+function RequestCard({ it, vote }: { it: ItemWithVote; vote: (id: number, dir: 1 | -1) => void }) {
   const my = it.userVote ?? 0;
+
+  const capacity = it.capacity ?? undefined; // undefined -> belirtilmedi
+  const enrolled = typeof it.enrolled === "number" ? Math.max(0, it.enrolled) : undefined;
 
   return (
     <motion.article
@@ -230,14 +310,10 @@ function RequestCard({
 
         {/* Çap chip */}
         <span
-          className={[
+          className={cn(
             "absolute left-3 top-3 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1",
-            it.buyukluk === "Birim"
-              ? "bg-sky-100 text-sky-800 ring-sky-200"
-              : it.buyukluk === "Departman"
-              ? "bg-violet-100 text-violet-800 ring-violet-200"
-              : "bg-emerald-100 text-emerald-800 ring-emerald-200",
-          ].join(" ")}
+            chipPalette(it.buyukluk)
+          )}
         >
           {it.buyukluk}
         </span>
@@ -251,9 +327,7 @@ function RequestCard({
             {it.kategori}
           </span>
         </div>
-        <h3 className="truncate text-base font-semibold text-slate-900">
-          {it.baslik}
-        </h3>
+        <h3 className="truncate text-base font-semibold text-slate-900">{it.baslik}</h3>
         <p className="mt-1 line-clamp-2 text-sm text-slate-600">{it.konu}</p>
 
         {/* Detaylar */}
@@ -270,9 +344,25 @@ function RequestCard({
             <TagIcon className="h-4 w-4 text-slate-400" />
             <span>{it.kategori}</span>
           </li>
+
+          {/* Kontenjan: DÜZ METİN */}
+          <li className="mt-1">
+            <div className="flex items-center gap-2 text-slate-600">
+              <Users className="h-4 w-4 text-slate-400" />
+              {capacity === undefined && (
+                <span className="text-slate-700">Kontenjan: Belirtilmedi</span>
+              )}
+              {typeof capacity === "number" && (
+                <span className= "text-slate-700">
+                  Kontenjan: {capacity} kişi
+                  {typeof enrolled === "number"}
+                </span>
+              )}
+            </div>
+          </li>
         </ul>
 
-        {/* Vurgulu yatay oy alanı — animasyonlu */}
+        {/* Oy alanı */}
         <div className="mt-4 flex items-stretch gap-2">
           <motion.button
             onClick={() => vote(it.id, 1)}
@@ -280,18 +370,15 @@ function RequestCard({
             whileHover={{ scale: 1.03, y: -1 }}
             whileTap={{ scale: 0.96 }}
             animate={{
-              boxShadow:
-                my === 1
-                  ? "0 8px 20px rgba(16,185,129,0.25)"
-                  : "0 0px 0px rgba(0,0,0,0)",
+              boxShadow: my === 1 ? "0 8px 20px rgba(16,185,129,0.25)" : "0 0px 0px rgba(0,0,0,0)",
             }}
             transition={{ type: "spring", stiffness: 500, damping: 28 }}
-            className={[
+            className={cn(
               "flex-1 inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-2.5 text-base font-semibold transition-colors",
               my === 1
                 ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
-            ].join(" ")}
+                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+            )}
             title="Beğen"
           >
             <ThumbsUp className="h-5 w-5" />
@@ -304,18 +391,15 @@ function RequestCard({
             whileHover={{ scale: 1.03, y: -1 }}
             whileTap={{ scale: 0.96 }}
             animate={{
-              boxShadow:
-                my === -1
-                  ? "0 8px 20px rgba(244,63,94,0.25)"
-                  : "0 0px 0px rgba(0,0,0,0)",
+              boxShadow: my === -1 ? "0 8px 20px rgba(244,63,94,0.25)" : "0 0px 0px rgba(0,0,0,0)",
             }}
             transition={{ type: "spring", stiffness: 500, damping: 28 }}
-            className={[
+            className={cn(
               "flex-1 inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-2.5 text-base font-semibold transition-colors",
               my === -1
                 ? "border-rose-300 bg-rose-50 text-rose-700"
-                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50",
-            ].join(" ")}
+                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+            )}
             title="Beğenme"
           >
             <ThumbsDown className="h-5 w-5" />
@@ -327,10 +411,143 @@ function RequestCard({
   );
 }
 
+/* ----------------- Geçmiş paneli (SAĞDAN KAYAN POPUP) ----------------- */
+function RatingBars({ dist }: { dist: RatingDist }) {
+  const total = Object.values(dist).reduce((a, b) => a + b, 0) || 1;
+  return (
+    <div className="mt-2 space-y-1.5">
+      {[5, 4, 3, 2, 1].map((s) => {
+        const val = dist[s] ?? 0;
+        const pct = Math.round((val / total) * 100);
+        return (
+          <div key={s} className="flex items-center gap-2">
+            <span className="w-6 shrink-0 text-[11px] font-semibold text-slate-600">{s}★</span>
+            <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200/60">
+              <div
+                className={cn(
+                  "h-full",
+                  s >= 4 ? "bg-emerald-400/80" : s === 3 ? "bg-amber-400/80" : "bg-rose-400/80"
+                )}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <span className="w-10 shrink-0 text-right text-[11px] tabular-nums text-slate-500">
+              {pct}%
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function PastEventItem({ e }: { e: PastEvent }) {
+  return (
+    <div className="rounded-xl border border-slate-200/80 bg-white p-3 ring-1 ring-slate-100">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h4 className="text-sm font-semibold text-slate-900">{e.ad}</h4>
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-600">
+            <span className="inline-flex items-center gap-1">
+              <Calendar className="h-3.5 w-3.5 text-slate-400" />
+              {formatDate(e.tarih)}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5 text-slate-400" />
+              {e.konum}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <TagIcon className="h-3.5 w-3.5 text-slate-400" />
+              {e.kategori}
+            </span>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700 ring-1 ring-amber-200">
+            <Star className="h-3.5 w-3.5" />
+            {e.puanOrt.toFixed(1)}
+          </div>
+          <div className="mt-0.5 text-[11px] text-slate-500">{e.puanSay} oy</div>
+        </div>
+      </div>
+      <div className="mt-2 text-[11px] text-slate-500">Katılım: {e.katilim}</div>
+      <RatingBars dist={e.dagilim} />
+    </div>
+  );
+}
+
+function PastEventsDrawer({
+  open,
+  onClose,
+  data,
+}: {
+  open: boolean;
+  onClose: () => void;
+  data: PastEvent[];
+}) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-[90]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          {/* Arka plan */}
+          <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px]" onClick={onClose} />
+          {/* Sağdan kayan panel */}
+          <motion.aside
+            initial={{ x: 24, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 24, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 380, damping: 34 }}
+            className="absolute right-0 top-0 h-full w-[min(420px,92vw)] overflow-y-auto border-l border-slate-200 bg-white p-4 shadow-2xl"
+            aria-modal
+            role="dialog"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="grid h-8 w-8 place-items-center rounded-lg bg-slate-100 ring-1 ring-slate-200">
+                  <BarChart3 className="h-4 w-4 text-slate-700" />
+                </div>
+                <h3 className="text-base font-semibold text-slate-900">
+                  Geçmiş Etkinlikler & Değerlendirmeler
+                </h3>
+              </div>
+              <button
+                onClick={onClose}
+                className="rounded-lg p-1 text-slate-500 hover:bg-slate-100"
+                aria-label="Kapat"
+                title="Kapat"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {data.map((e) => (
+                <PastEventItem key={e.id} e={e} />
+              ))}
+            </div>
+          </motion.aside>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 /* ----------------- Sayfa ----------------- */
 export default function RequestsPage() {
   const [items, setItems] = useState<ItemWithVote[]>(
-    seed.map((i) => ({ ...i, userVote: 0 }))
+    // örnek: düz gösterimin çalışması için bazılarına capacity/enrolled ekleyebilirsin
+    seed.map((i) => ({
+      ...i,
+      userVote: 0,
+      // örnek veri (isteğe bağlı):
+      capacity: i.id === 1 ? 64 : i.id === 2 ? 50 : i.id === 3 ? 40 : undefined,
+      enrolled: i.id === 1 ? 52 : i.id === 2 ? 25 : i.id === 3 ? 22 : undefined,
+    }))
   );
 
   // filtre/sıralama
@@ -338,6 +555,10 @@ export default function RequestsPage() {
   const [scope, setScope] = useState<"Tümü" | Scope>("Tümü");
   const [cat, setCat] = useState<string>("Tüm Kategoriler");
   const [sort, setSort] = useState<SortKey>("newest");
+
+  // geçmiş panel state
+  const [openPast, setOpenPast] = useState(false);
+  const [past] = useState<PastEvent[]>(pastSeed);
 
   // kategori seçenekleri
   const categories = useMemo(() => {
@@ -436,6 +657,7 @@ export default function RequestsPage() {
         down: 0,
         createdAt: now,
         userVote: 0,
+        // yeni taleplerde kontenjan bilgisi formda yok -> belirtilmedi
       },
       ...list,
     ]);
@@ -463,11 +685,14 @@ export default function RequestsPage() {
             </p>
           </header>
 
+          {/* Geçmiş paneli */}
+          <PastEventsDrawer open={openPast} onClose={() => setOpenPast(false)} data={past} />
+
           {/* Filtre paneli (pastel) */}
           <div className={`${shell.panel} relative z-30 mb-6 p-4`}>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-5">
               {/* Arama */}
-              <label className="flex items-center gap-2 text-sm sm:col-span-1">
+              <label className="flex items-center gap-2 text-sm">
                 <div className="relative flex-1">
                   <input
                     value={q}
@@ -479,6 +704,7 @@ export default function RequestsPage() {
                 </div>
               </label>
 
+              {/* Sırayla: Sıralama, Kategori, Kapsam */}
               <SelectBox
                 label=""
                 value={sort}
@@ -497,10 +723,21 @@ export default function RequestsPage() {
                 options={scopeOpts}
                 onChange={(v) => setScope(v as any)}
               />
+
+              {/* Geçmiş butonu */}
+              <button
+                onClick={() => setOpenPast(true)}
+                className="h-10 w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-white/90 px-3 text-sm font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                title="Geçmiş Etkinlikler"
+                aria-label="Geçmiş Etkinlikler"
+              >
+                <History className="h-4 w-4" aria-hidden="true" />
+                <span>Geçmiş Etkinlikler</span>
+              </button>
             </div>
           </div>
 
-          {/* Kartlar — smooth reorder + fade in/out */}
+          {/* Kartlar */}
           {filtered.length === 0 ? (
             <div className="text-sm text-slate-600">Eşleşen talep bulunamadı.</div>
           ) : (
@@ -511,7 +748,7 @@ export default function RequestsPage() {
             >
               <AnimatePresence initial={false} mode="popLayout">
                 {filtered.map((it) => (
-                  <RequestCard key={it.id} it={it} vote={toggleVote} />
+                  <RequestCard key={it.id} it={it as ItemWithVote} vote={toggleVote} />
                 ))}
               </AnimatePresence>
             </motion.section>
@@ -538,10 +775,7 @@ export default function RequestsPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <div
-              className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
-              onClick={() => setOpen(false)}
-            />
+            <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm" onClick={() => setOpen(false)} />
             <motion.div
               initial={{ y: 24, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -550,25 +784,14 @@ export default function RequestsPage() {
             >
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-slate-800">Talep Formu</h2>
-                <button
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg p-1 text-slate-500 hover:bg-slate-100"
-                >
+                <button onClick={() => setOpen(false)} className="rounded-lg p-1 text-slate-500 hover:bg-slate-100">
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
               <form onSubmit={submitForm} className="grid grid-cols-1 gap-3">
-                <Input
-                  label="Başlık"
-                  value={form.baslik}
-                  onChange={(v) => setForm((f) => ({ ...f, baslik: v }))}
-                />
-                <TextArea
-                  label="Konu"
-                  value={form.konu}
-                  onChange={(v) => setForm((f) => ({ ...f, konu: v }))}
-                />
+                <Input label="Başlık" value={form.baslik} onChange={(v) => setForm((f) => ({ ...f, baslik: v }))} />
+                <TextArea label="Konu" value={form.konu} onChange={(v) => setForm((f) => ({ ...f, konu: v }))} />
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <Input
@@ -577,11 +800,7 @@ export default function RequestsPage() {
                     value={form.tarih}
                     onChange={(v) => setForm((f) => ({ ...f, tarih: v }))}
                   />
-                  <Input
-                    label="Konum"
-                    value={form.konum}
-                    onChange={(v) => setForm((f) => ({ ...f, konum: v }))}
-                  />
+                  <Input label="Konum" value={form.konum} onChange={(v) => setForm((f) => ({ ...f, konum: v }))} />
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
