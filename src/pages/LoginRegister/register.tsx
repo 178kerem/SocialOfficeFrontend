@@ -1,7 +1,8 @@
 import React, { useMemo, useState, useRef, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { Link } from "react-router-dom"
-import { Eye, EyeOff, Lock, Mail, ChevronDown, User2 } from "lucide-react"
+import { Eye, EyeOff, Lock, Mail, ChevronDown } from "lucide-react"
+import logo from "../../assets/logo.png";
 
 type FormState = {
   firstName: string
@@ -106,8 +107,8 @@ export default function Register({ onSuccess }: RegisterProps) {
         <div className="rounded-2xl border border-slate-200/70 bg-white/70 backdrop-blur shadow-sm ring-1 ring-slate-900/5 p-6">
           {/* Header */}
           <div className="text-center mb-6">
-            <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-indigo-300 to-sky-300 text-white ring-1 ring-white/40">
-              <User2 className="h-6 w-6" aria-hidden />
+            <div className="mx-auto mb-3 grid h-18 w-18 place-items-center">
+              <img src={logo} alt="Sosyal Ofis" className="h-18 w-18 object-contain" />
             </div>
             <h1 className="text-xl font-semibold text-slate-900">Sosyal Ofis</h1>
             <p className="text-slate-600 text-sm">Hesap oluşturun</p>
