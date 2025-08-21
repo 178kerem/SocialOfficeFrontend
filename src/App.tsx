@@ -14,10 +14,15 @@ import IdeasPage from "./pages/AdminPages/fikirSecimPage";
 import EtkinlikTalepOnayPage from "./pages/AdminPages/talepEtkinlikOnayPage";
 import SettingsPage from "./pages/settings";
 import Login from "./pages/login";
+import IlgiTakip from "./pages/AdminPages/ilgiAlanıtakip";   
 
 type Profile = {
-  firstName: string; lastName: string; email: string;
-  sicil: string; dept: string; unit: string;
+  firstName: string; 
+  lastName: string; 
+  email: string;
+  sicil: string; 
+  dept: string; 
+  unit: string;
 };
 
 export default function App() {
@@ -74,7 +79,6 @@ export default function App() {
                         "Profil bilgisi yok"
                       )}
                     </div>
-                   
                   </div>
 
                   <EventsPage />
@@ -91,6 +95,8 @@ export default function App() {
 
             <Route path="/admin/fikir-secim" element={<IdeasPage />} />
             <Route path="/admin/talep-etkinlik-onay" element={<EtkinlikTalepOnayPage />} />
+            <Route path="/admin/ilgi-alani-takip" element={<IlgiTakip />} />   
+
             {/* Default yönlendirmeler */}
             <Route path="/" element={<Navigate to="/register" replace />} />
             <Route path="*" element={<Navigate to="/events" replace />} />

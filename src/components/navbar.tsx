@@ -1,4 +1,3 @@
-// src/components/navbar.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -12,6 +11,7 @@ import {
   Settings,
   ClipboardCheck,
   Shield,
+  Tag, // ✅ yeni ikon
   type LucideIcon,
 } from "lucide-react";
 import logo from "../assets/logo.png"
@@ -36,12 +36,14 @@ const primaryItems: NavItem[] = [
 const adminItems: NavItem[] = [
   { id: "admin-ideas",     label: "Admin: Fikir Seçimi",   icon: Shield,         href: "/admin/fikir-secim" },
   { id: "admin-approvals", label: "Admin: Onaylar",        icon: ClipboardCheck, href: "/admin/talep-etkinlik-onay" },
+  { id: "admin-interests", label: "Admin: İlgi Alanı Takip", icon: Tag,          href: "/admin/ilgi-alani-takip" }, // ✅ yeni menü
 ];
 
 const bottomItems: NavItem[] = [
   { id: "profile",  label: "Profil",  icon: User2,     href: "/profile" },
   { id: "settings", label: "Ayarlar", icon: Settings,  href: "/ayarlar" },
 ];
+
 
 export default function Navbar({
   activeId,
