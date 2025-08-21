@@ -11,7 +11,11 @@ import { MailMinus } from "lucide-react"
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>                                {/* 👈 sar */}
-      <App />
+
+      <div className="min-h-screen bg-slate-50">
+        <App/>
+      </div>
+
     </BrowserRouter>
   </StrictMode>
 )
