@@ -60,28 +60,7 @@ export default function App() {
               }
             />
 
-            <Route
-              path="/events"
-              element={
-                <div className="p-6">
-                  <div className="mb-4 flex items-center justify-between">
-                    <div className="text-sm text-slate-600">
-                      {profile ? (
-                        <>
-                          <b>{profile.firstName} {profile.lastName}</b> • {profile.email} • {interests.length} ilgi alanı
-                        </>
-                      ) : (
-                        "Profil bilgisi yok"
-                      )}
-                    </div>
-                   
-                  </div>
-
-                  <EventsPage />
-                </div>
-              }
-            />
-
+            <Route path="/events"element={<EventsPage />}/>
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/requests" element={<RequestsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
@@ -91,7 +70,11 @@ export default function App() {
 
             <Route path="/admin/fikir-secim" element={<IdeasPage />} />
             <Route path="/admin/talep-etkinlik-onay" element={<EtkinlikTalepOnayPage />} />
-            {/* Default yönlendirmeler */}
+            <Route path="/ayarlar" element={<SettingsPage />} />
+            
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
             <Route path="/" element={<Navigate to="/register" replace />} />
             <Route path="*" element={<Navigate to="/events" replace />} />
           </Routes>

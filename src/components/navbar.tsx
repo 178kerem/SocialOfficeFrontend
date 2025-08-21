@@ -14,7 +14,7 @@ import {
   Shield,
   type LucideIcon,
 } from "lucide-react";
-import logo from "../assets/logo.png"
+import logo from "../assets/logo.png";
 
 export type NavItem = { id: string; label: string; icon: LucideIcon; href: string };
 export type HoverExpandNavProps = {
@@ -52,7 +52,6 @@ export default function Navbar({
   const navigate = useNavigate();
   const location = useLocation();
 
-  // path-prefix aktiflik (örn. /events/... da Etkinlikler’i aktif yapar)
   const isPathActive = (href: string) =>
     location.pathname === href || location.pathname.startsWith(href + "/");
 
@@ -80,22 +79,37 @@ export default function Navbar({
       className={["group/nav peer/nav z-40 h-screen", fixed ? "fixed left-0 top-0" : ""].join(" ")}
     >
       {/* Kasa */}
-      <div className="flex h-full w-16 group-hover/nav:w-64 transition-[width] duration-500 ease-in-out bg-slate-950/95 text-slate-100 shadow-xl ring-1 ring-white/10">
+      <div
+        className="
+          flex h-full w-16 group-hover/nav:w-64
+          transition-[width] duration-300 ease-[cubic-bezier(.22,1,.36,1)]
+          bg-slate-950/95 text-slate-100 shadow-xl ring-1 ring-white/10
+        "
+      >
         <div className="flex w-full flex-col px-2 py-4">
           {/* Logo / Marka */}
-          <div className="mb-5 px-2">
-            <div className="flex w-full items-center gap-3 justify-start transition-all duration-500 ease-out group-hover/nav:justify-center">
-              <div className="grid h-12 w-12 place-items-center rounded-xl overflow-hidden">
-                <img
-                  src={logo}
-                  alt="SosyalOfis Logo"
-                  className="h-12 w-12 object-contain"
-                />
+          <div className="mb-5">
+            <div className="flex items-center gap-3">
+              {/* Logo: her zaman görünür, arka plan/çerçeve yok */}
+              <div className="grid h-12 w-12 place-items-center shrink-0" aria-label="Sosyal Ofis Logo">
+                <img src={logo} alt="Sosyal Ofis" className="h-12 w-12 object-contain" />
               </div>
-              <span className="hidden text-sm font-semibold tracking-wide transition-all duration-500 group-hover/nav:inline group-hover/nav:translate-x-0 group-hover/nav:opacity-100 translate-x-2 opacity-0">
+
+              {/* Yazı: kapalıyken gizli değil, sadece opaklık/translate ile kapanıyor;
+                  genişleyince alttaki item etiketleri gibi açılıyor ve beyaz */}
+              <span
+                className="
+                  pointer-events-none whitespace-nowrap text-sm font-semibold tracking-wide text-white
+                  translate-x-2 opacity-0
+                  group-hover/nav:translate-x-0 group-hover/nav:opacity-100
+                  transition-[opacity,transform] duration-300 ease-out
+                "
+              >
+                SOSYAL OFİS
               </span>
             </div>
           </div>
+
           {/* Üst gruplar */}
           <ul className="flex-1 space-y-1">
             {primaryItems.map((item) => (
@@ -116,7 +130,7 @@ export default function Navbar({
               </span>
             </li>
 
-            {/* Admin öğeleri — farklı arka plan */}
+            {/* Admin öğeleri */}
             {adminItems.map((item) => (
               <NavButton
                 key={item.id}
@@ -165,7 +179,6 @@ function NavButton({
 }) {
   const Icon = item.icon;
 
-  // Stil haritası: admin için farklı arka plan ve şerit gradyanı
   const styles =
     variant === "admin"
       ? {
@@ -189,11 +202,11 @@ function NavButton({
         title={item.label}
         aria-current={active ? "page" : undefined}
         className={[
-          "peer flex w-full items-center gap-3 rounded-xl px-3 py-2 outline-none transition-colors duration-200",
+          "peer flex w-full items-center gap-3 rounded-xl px-3 py-2 outline-none",
+          "transition-colors duration-200 ease-out",
           active ? styles.active : styles.base,
         ].join(" ")}
       >
-        {/* Sol vurgu şeridi */}
         <span
           aria-hidden
           className={[
@@ -202,15 +215,23 @@ function NavButton({
           ].join(" ")}
         />
         <Icon className="h-5 w-5 shrink-0" aria-hidden />
-        <span className="pointer-events-none whitespace-nowrap text-sm translate-x-2 opacity-0 group-hover/nav:translate-x-0 group-hover/nav:opacity-100 transition-all duration-300">
+        <span
+          className="
+            pointer-events-none whitespace-nowrap text-sm
+            transform-gpu translate-x-2 opacity-0
+            group-hover/nav:translate-x-0 group-hover/nav:opacity-100
+            transition-[opacity,transform] duration-300 ease-out
+          "
+        >
           {item.label}
         </span>
       </button>
 
-      {/* Tooltip: dar iken görünür, genişleyince gizlenir */}
+      {/* Tooltip (dar iken) */}
       <span
         className={[
-          "pointer-events-none absolute left-16 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-xs text-slate-100 shadow-lg ring-1 ring-white/10 opacity-0 transition-opacity duration-200 peer-hover:opacity-100 group-hover/nav:hidden",
+          "pointer-events-none absolute left-16 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-xs text-slate-100 shadow-lg ring-1 ring-white/10",
+          "opacity-0 transition-opacity duration-150 ease-out peer-hover:opacity-100 group-hover/nav:hidden",
           styles.tooltipBg,
         ].join(" ")}
       >
