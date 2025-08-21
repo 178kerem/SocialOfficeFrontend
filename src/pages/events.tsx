@@ -164,9 +164,6 @@ export default function EventsPage() {
         <div className="max-w-7xl mx-auto px-4 pt-6 pb-10">
           <header className="mb-6">
             <h1 className="text-2xl font-semibold text-slate-900">Planlanmış Etkinlikler</h1>
-            <p className="text-slate-600">
-              Yaklaşan etkinlikleri görüntüleyin ve katılmak istediklerinize kayıt olun.
-            </p>
           </header>
 
           {/* Filtre çubuğu — aramasız comboboxlar (pastel) */}
