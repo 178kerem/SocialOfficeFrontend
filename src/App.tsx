@@ -13,11 +13,19 @@ import ProfileDashboard from "./pages/profile";
 import IdeasPage from "./pages/AdminPages/fikirSecimPage";
 import EtkinlikTalepOnayPage from "./pages/AdminPages/talepEtkinlikOnayPage";
 import SettingsPage from "./pages/settings";
-import Login from "./pages/LoginRegister/login";
+import Login from "./pages/login";
+import IlgiTakip from "./pages/AdminPages/ilgiAlanıtakip";   
+import EtkinlikOnOnayPage from "./pages/AdminPages/talepEdilenEtkinliklerOnOnay";
+
+
 
 type Profile = {
-  firstName: string; lastName: string; email: string;
-  sicil: string; dept: string; unit: string;
+  firstName: string; 
+  lastName: string; 
+  email: string;
+  sicil: string; 
+  dept: string; 
+  unit: string;
 };
 
 export default function App() {
@@ -60,13 +68,47 @@ export default function App() {
               }
             />
 
+
+            <Route
+              path="/events"
+              element={
+                <div className="p-6">
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="text-sm text-slate-600">
+                      {profile ? (
+                        <>
+                          <b>{profile.firstName} {profile.lastName}</b> • {profile.email} • {interests.length} ilgi alanı
+                        </>
+                      ) : (
+                        "Profil bilgisi yok"
+                      )}
+                    </div>
+                  </div>
+
+                  <EventsPage />
+                </div>
+              }
+            />
+
+
             <Route path="/events"element={<EventsPage />}/>
+
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/requests" element={<RequestsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/profile" element={<ProfileDashboard />} />
             <Route path="/fikirler" element={<FikirlerPage />} />
             <Route path="/talepler" element={<TaleplerPage />} />
+
+            <Route path="/admin/etkinlik-on-onay" element={<EtkinlikOnOnayPage />} />
+
+
+            <Route path="/admin/fikir-secim" element={<IdeasPage />} />
+           
+            <Route path="/admin/ilgi-alani-takip" element={<IlgiTakip />} />   
+
+            {/* Default yönlendirmeler */}
+
             <Route path="/login" element={<Login />} />
              <Route path="/settings" element={<SettingsPage />} />
             <Route path="/admin/fikir-secim" element={<IdeasPage />} />
@@ -75,6 +117,7 @@ export default function App() {
             
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+
 
             <Route path="/" element={<Navigate to="/register" replace />} />
             <Route path="*" element={<Navigate to="/events" replace />} />
