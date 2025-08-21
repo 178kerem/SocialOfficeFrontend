@@ -12,6 +12,7 @@ import TaleplerPage from "./pages/talepler";
 import ProfileDashboard from "./pages/profile";
 import IdeasPage from "./pages/AdminPages/fikirSecimPage";
 import EtkinlikTalepOnayPage from "./pages/AdminPages/talepEtkinlikOnayPage";
+import SettingsPage from "./pages/settings";
 
 type Profile = {
   firstName: string; lastName: string; email: string;
@@ -94,6 +95,8 @@ export default function App() {
 
             <Route path="/admin/fikir-secim" element={<IdeasPage />} />
             <Route path="/admin/talep-etkinlik-onay" element={<EtkinlikTalepOnayPage />} />
+            
+            <Route path="/ayarlar" element={<SettingsPage />} />
 
             {/* Default yönlendirmeler */}
             <Route path="/" element={<Navigate to="/events" replace />} />
