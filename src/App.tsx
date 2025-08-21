@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "@/components/navbar";
-import Register from "@/pages/register";
+import Register from "@/pages/LoginRegister/register";
 import InterestSelect from "@/pages/InterestsSelect";
 import EventsPage from "@/pages/events";
 import CalendarPage from "./pages/calendar";
@@ -13,7 +13,7 @@ import ProfileDashboard from "./pages/profile";
 import IdeasPage from "./pages/AdminPages/fikirSecimPage";
 import EtkinlikTalepOnayPage from "./pages/AdminPages/talepEtkinlikOnayPage";
 import SettingsPage from "./pages/settings";
-import Login from "./pages/login";
+import Login from "./pages/LoginRegister/login";
 
 type Profile = {
   firstName: string; lastName: string; email: string;

@@ -1,4 +1,3 @@
-import Navbar from "@/components/navbar"
 import MonthCalendar from "@/components/Calendar/MonthCalendar"
 import type { CalendarEvent } from "@/components/Calendar/MonthCalendar"
 
@@ -20,9 +19,6 @@ const events: CalendarEvent[] = [
 export default function CalendarPage() {
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Sol sabit navbar */}
-      <Navbar fixed />
-
       {/* İçerik: nav dar (w-16) iken ml-16, hover’da ml-64 */}
       <div className="ml-16 peer-hover/nav:ml-64 transition-[margin-left] duration-300">
         {/* Tam ekran yükseklik */}

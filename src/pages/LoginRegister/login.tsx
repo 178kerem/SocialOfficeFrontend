@@ -1,6 +1,6 @@
 import { useMemo, useState, type FocusEvent, type ChangeEvent, type FormEvent } from "react"
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react"
-import logo from "../assets/logo.png";
+import logo from "../../assets/logo.png";
 
 type LoginForm = {
   email: string
