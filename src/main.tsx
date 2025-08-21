@@ -5,6 +5,8 @@ import "./index.css"
 import Register from "./pages/register"
 import Login from "./pages/login"
 import App from "./App"
+import ProfileDashboard from "./pages/profile"
+import { MailMinus } from "lucide-react"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
