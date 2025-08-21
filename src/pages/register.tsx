@@ -1,6 +1,6 @@
 import { useMemo, useState, useRef, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
-
+import { Link } from "react-router-dom"
 type FormState = {
   firstName: string
   lastName: string
@@ -225,8 +225,11 @@ export default function Register({ onSuccess }: RegisterProps) {
 
           <p className="mt-4 text-center text-xs text-slate-600">
             Zaten hesabınız var mı?{" "}
-            <a href="/login" className="font-medium text-indigo-600 hover:underline">Giriş yapın</a>
-          </p>
+          <Link to="/login" className="text-blue-600 hover:underline">
+             Giriş yapın
+                </Link>
+                    </p>
+
         </div>
       </div>
     </div>

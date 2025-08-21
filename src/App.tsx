@@ -88,7 +88,8 @@ export default function App() {
             <Route path="/profile" element={<ProfileDashboard />} />
             <Route path="/fikirler" element={<FikirlerPage />} />
             <Route path="/talepler" element={<TaleplerPage />} />
-
+            <Route path="/login" element={<Login />} />
+             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/admin/fikir-secim" element={<IdeasPage />} />
             <Route path="/admin/talep-etkinlik-onay" element={<EtkinlikTalepOnayPage />} />
             {/* Default yönlendirmeler */}
