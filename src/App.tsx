@@ -15,6 +15,7 @@ import EtkinlikTalepOnayPage from "./pages/AdminPages/talepEtkinlikOnayPage";
 import SettingsPage from "./pages/settings";
 import Login from "./pages/login";
 import IlgiTakip from "./pages/AdminPages/ilgiAlanıtakip";   
+import EtkinlikOnOnayPage from "./pages/AdminPages/talepEdilenEtkinliklerOnOnay";
 
 type Profile = {
   firstName: string; 
@@ -92,6 +93,8 @@ export default function App() {
             <Route path="/profile" element={<ProfileDashboard />} />
             <Route path="/fikirler" element={<FikirlerPage />} />
             <Route path="/talepler" element={<TaleplerPage />} />
+            <Route path="/admin/etkinlik-on-onay" element={<EtkinlikOnOnayPage />} />
+
 
             <Route path="/admin/fikir-secim" element={<IdeasPage />} />
             <Route path="/admin/talep-etkinlik-onay" element={<EtkinlikTalepOnayPage />} />

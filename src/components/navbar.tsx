@@ -34,10 +34,12 @@ const primaryItems: NavItem[] = [
 ];
 
 const adminItems: NavItem[] = [
-  { id: "admin-ideas",     label: "Admin: Fikir Seçimi",   icon: Shield,         href: "/admin/fikir-secim" },
-  { id: "admin-approvals", label: "Admin: Onaylar",        icon: ClipboardCheck, href: "/admin/talep-etkinlik-onay" },
-  { id: "admin-interests", label: "Admin: İlgi Alanı Takip", icon: Tag,          href: "/admin/ilgi-alani-takip" }, // ✅ yeni menü
+  { id: "admin-ideas",       label: "Admin: Fikir Seçimi",        icon: Shield,         href: "/admin/fikir-secim" },
+  { id: "admin-preapprovals",label: "Admin: Etkinlik Ön Onay",    icon: ClipboardCheck, href: "/admin/etkinlik-on-onay" },
+  { id: "admin-approvals",   label: "Admin: Onaylar",             icon: ClipboardCheck, href: "/admin/talep-etkinlik-onay" }, // ✅ yeni ekleme
+  { id: "admin-interests",   label: "Admin: İlgi Alanı Takip",    icon: Tag,            href: "/admin/ilgi-alani-takip" },
 ];
+
 
 const bottomItems: NavItem[] = [
   { id: "profile",  label: "Profil",  icon: User2,     href: "/profile" },
