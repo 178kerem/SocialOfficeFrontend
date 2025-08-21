@@ -4,12 +4,14 @@ import { BrowserRouter } from "react-router-dom"   // 👈 ekle
 import "./index.css"
 import RequestsPage from "@/pages/requestEvents"
 import App from "./App"
+import ProfileDashboard from "./pages/profile"
+import { MailMinus } from "lucide-react"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>                                {/* 👈 sar */}
       <div className="min-h-screen bg-slate-50">
-        <App />
+        <App/>
       </div>
     </BrowserRouter>
   </StrictMode>
