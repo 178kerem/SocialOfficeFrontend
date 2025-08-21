@@ -14,14 +14,7 @@ import {
   Shield,
   type LucideIcon,
 } from "lucide-react";
-
-/**
- * Minimal, kurumsal, hover ile genişleyen sol navbar
- * - Dar: w-16, hover: w-64
- * - Aktif öğe sol şerit + dolgu
- * - Tooltip (dar iken), aria-current, path-prefix eşleşmesi
- * - Admin öğeleri farklı arka plan vurgusuna sahip
- */
+import logo from "../assets/logo.png"
 
 export type NavItem = { id: string; label: string; icon: LucideIcon; href: string };
 export type HoverExpandNavProps = {
@@ -47,7 +40,7 @@ const adminItems: NavItem[] = [
 
 const bottomItems: NavItem[] = [
   { id: "profile",  label: "Profil",  icon: User2,     href: "/profile" },
-  { id: "settings", label: "Ayarlar", icon: Settings,  href: "/settings" },
+  { id: "settings", label: "Ayarlar", icon: Settings,  href: "/ayarlar" },
 ];
 
 export default function Navbar({
@@ -87,18 +80,22 @@ export default function Navbar({
       className={["group/nav peer/nav z-40 h-screen", fixed ? "fixed left-0 top-0" : ""].join(" ")}
     >
       {/* Kasa */}
-      <div className="flex h-full w-16 group-hover/nav:w-64 transition-[width] duration-300 ease-in-out bg-slate-950/95 text-slate-100 shadow-xl ring-1 ring-white/10">
+      <div className="flex h-full w-16 group-hover/nav:w-64 transition-[width] duration-500 ease-in-out bg-slate-950/95 text-slate-100 shadow-xl ring-1 ring-white/10">
         <div className="flex w-full flex-col px-2 py-4">
           {/* Logo / Marka */}
-          <div className="mb-5 flex items-center gap-3 px-2">
-            <div className={`grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br text-white`}>
-              <CalendarDays className="h-5 w-5" aria-hidden /> 
+          <div className="mb-5 px-2">
+            <div className="flex w-full items-center gap-3 justify-start transition-all duration-500 ease-out group-hover/nav:justify-center">
+              <div className="grid h-12 w-12 place-items-center rounded-xl overflow-hidden">
+                <img
+                  src={logo}
+                  alt="SosyalOfis Logo"
+                  className="h-12 w-12 object-contain"
+                />
+              </div>
+              <span className="hidden text-sm font-semibold tracking-wide transition-all duration-500 group-hover/nav:inline group-hover/nav:translate-x-0 group-hover/nav:opacity-100 translate-x-2 opacity-0">
+              </span>
             </div>
-            <span className="translate-x-2 text-sm font-semibold tracking-wide opacity-0 group-hover/nav:translate-x-0 group-hover/nav:opacity-100 transition-all duration-300">
-              SosyalOfis
-            </span>
           </div>
-
           {/* Üst gruplar */}
           <ul className="flex-1 space-y-1">
             {primaryItems.map((item) => (

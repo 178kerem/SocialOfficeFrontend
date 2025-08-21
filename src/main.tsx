@@ -2,7 +2,7 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter } from "react-router-dom"   // 👈 ekle
 import "./index.css"
-import RequestsPage from "@/pages/requestEvents"
+import Register from "./pages/register"
 import App from "./App"
 
 createRoot(document.getElementById("root")!).render(

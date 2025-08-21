@@ -362,7 +362,7 @@ export default function TaleplerPage() {
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         {/* Başlık */}
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-slate-800">Talepler</h1>
+          <h1 className="text-left text-2xl font-bold tracking-tight text-slate-800">Talepler</h1>
         </div>
 
         {/* Filtreler */}
