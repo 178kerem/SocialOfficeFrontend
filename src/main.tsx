@@ -12,7 +12,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>                                {/* 👈 sar */}
       <div className="min-h-screen bg-slate-50">
-        <Login />
+        <App/>
       </div>
     </BrowserRouter>
   </StrictMode>
