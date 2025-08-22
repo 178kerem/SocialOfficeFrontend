@@ -17,8 +17,6 @@ import Login from "./pages/LoginRegister/login";
 import IlgiTakip from "./pages/AdminPages/ilgiAlanıtakip";   
 import EtkinlikOnOnayPage from "./pages/AdminPages/talepEdilenEtkinliklerOnOnay";
 
-
-
 type Profile = {
   firstName: string; 
   lastName: string; 

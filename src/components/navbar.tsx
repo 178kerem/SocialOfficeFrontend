@@ -11,7 +11,8 @@ import {
   Settings,
   ClipboardCheck,
   Shield,
-  Tag, // ✅ yeni ikon
+  Tag,
+  ClipboardPlus,
   type LucideIcon,
 } from "lucide-react";
 import logo from "../assets/logo.png";
@@ -35,7 +36,7 @@ const primaryItems: NavItem[] = [
 
 const adminItems: NavItem[] = [
   { id: "admin-ideas",       label: "Admin: Fikir Seçimi",        icon: Shield,         href: "/admin/fikir-secim" },
-  { id: "admin-preapprovals",label: "Admin: Etkinlik Ön Onay",    icon: ClipboardCheck, href: "/admin/etkinlik-on-onay" },
+  { id: "admin-preapprovals",label: "Admin: Etkinlik Ön Onay",    icon: ClipboardPlus, href: "/admin/etkinlik-on-onay" },
   { id: "admin-approvals",   label: "Admin: Onaylar",             icon: ClipboardCheck, href: "/admin/talep-etkinlik-onay" }, // ✅ yeni ekleme
   { id: "admin-interests",   label: "Admin: İlgi Alanı Takip",    icon: Tag,            href: "/admin/ilgi-alani-takip" },
 ];
