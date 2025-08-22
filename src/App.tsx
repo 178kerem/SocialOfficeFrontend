@@ -13,7 +13,7 @@ import ProfileDashboard from "./pages/profile";
 import IdeasPage from "./pages/AdminPages/fikirSecimPage";
 import EtkinlikTalepOnayPage from "./pages/AdminPages/talepEtkinlikOnayPage";
 import SettingsPage from "./pages/settings";
-import Login from "./pages/login";
+import Login from "./pages/LoginRegister/login";
 import IlgiTakip from "./pages/AdminPages/ilgiAlanıtakip";   
 import EtkinlikOnOnayPage from "./pages/AdminPages/talepEdilenEtkinliklerOnOnay";
 
