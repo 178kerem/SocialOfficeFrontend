@@ -104,7 +104,7 @@ export default function Navbar({
               <span
                 className="
                   pointer-events-none whitespace-nowrap text-sm font-semibold tracking-wide text-white
-                  translate-x-2 opacity-0
+                  items-center opacity-0
                   group-hover/nav:translate-x-0 group-hover/nav:opacity-100
                   transition-[opacity,transform] duration-300 ease-out
                 "
