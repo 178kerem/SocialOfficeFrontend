@@ -1,8 +1,7 @@
 // src/pages/calendar.tsx
-import React, { useMemo, useState } from "react";
+import  { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, CalendarDays, Filter, X } from "lucide-react";
-import Navbar from "@/components/navbar";
 
 /* ───────────── Tipler ───────────── */
 type CalendarEvent = {
@@ -107,8 +106,6 @@ export default function CalendarPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-slate-50">
-      <Navbar />
-
       <div className="ml-16 peer-hover/nav:ml-64 transition-[margin-left] duration-300">
         <div className="mx-auto max-w-7xl px-4 py-6">
           {/* Başlık ve kontroller */}
