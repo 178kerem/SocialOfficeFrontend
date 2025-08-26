@@ -1,7 +1,7 @@
 // src/pages/fikirler.tsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ThumbsUp, Users, Plus, ChevronDown, X } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Plus, ChevronDown, X } from "lucide-react";
 
 /* ——— UI helpers ——— */
 const shell = {
@@ -19,7 +19,7 @@ type Idea = {
   title: string;
   description: string;
   votes: number;
-  contributors: number;
+  dislikes: number; // 👈 eklendi
   comments: number;
   status?: IdeaStatus;
 };
@@ -39,7 +39,7 @@ const seed: Idea[] = [
     title: "Property uygulaması",
     description: "Giriş ekranına erişimi hızlandıracak bir kısayol butonu ekleyelim.",
     votes: 250,
-    contributors: 15,
+    dislikes: 12,
     comments: 10,
     status: "in_review",
   },
@@ -49,7 +49,7 @@ const seed: Idea[] = [
     title: "UI/UX düzenlemeleri",
     description: "Form adımlarını sadeleştirip kaydetmeden çıkınca uyarı verelim.",
     votes: 122,
-    contributors: 7,
+    dislikes: 4,
     comments: 4,
     status: "new",
   },
@@ -59,7 +59,7 @@ const seed: Idea[] = [
     title: "Etkinlik duyuru modülü",
     description: "Kampüs etkinliklerini bir yerden takip edelim, filtre + bildirim olsun.",
     votes: 98,
-    contributors: 23,
+    dislikes: 8,
     comments: 19,
     status: "accepted",
   },
@@ -69,7 +69,7 @@ const seed: Idea[] = [
     title: "Renk/Temalar",
     description: "Giriş/Çıkış uygulamasında açık koyu tema desteği.",
     votes: 45,
-    contributors: 6,
+    dislikes: 1,
     comments: 2,
     status: "new",
   },
@@ -94,16 +94,6 @@ function StatusPill({ s }: { s?: IdeaStatus }) {
     <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium ring-1 ${map[s]}`}>
       {text[s]}
     </span>
-  );
-}
-
-function Stat({ icon: Icon, value, label }: { icon: any; value: number | string; label: string }) {
-  return (
-    <div className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/60 px-2.5 py-1.5 text-xs text-slate-700">
-      <Icon className="h-4 w-4 opacity-70" />
-      <span className="font-semibold">{value}</span>
-      <span className="opacity-70">{label}</span>
-    </div>
   );
 }
 
@@ -171,17 +161,27 @@ function Modal({
 function IdeaCard({
   item,
   onUpvote,
+  onDownvote,
 }: {
   item: Idea;
   onUpvote: (id: string) => void;
+  onDownvote: (id: string) => void;
 }) {
-  const [cooldown, setCooldown] = useState(false);
+  const [likeCooldown, setLikeCooldown] = useState(false);
+  const [dislikeCooldown, setDislikeCooldown] = useState(false);
 
-  const click = () => {
-    if (cooldown) return;
+  const clickLike = () => {
+    if (likeCooldown) return;
     onUpvote(item.id);
-    setCooldown(true);
-    setTimeout(() => setCooldown(false), 300); // hızlı çift tıklamayı frenle
+    setLikeCooldown(true);
+    setTimeout(() => setLikeCooldown(false), 300);
+  };
+
+  const clickDislike = () => {
+    if (dislikeCooldown) return;
+    onDownvote(item.id);
+    setDislikeCooldown(true);
+    setTimeout(() => setDislikeCooldown(false), 300);
   };
 
   return (
@@ -204,19 +204,19 @@ function IdeaCard({
 
       <div className="mt-3 flex items-center justify-between">
         <div className="flex flex-wrap items-center gap-2">
+          {/* Like */}
           <motion.button
-            onClick={click}
+            onClick={clickLike}
             whileHover={{ scale: 1.04, y: -1 }}
             whileTap={{ scale: 0.95 }}
             animate={{
-              boxShadow: cooldown ? "0 10px 24px rgba(16,185,129,0.28)" : "0 0 0 rgba(0,0,0,0)",
+              boxShadow: likeCooldown ? "0 10px 24px rgba(16,185,129,0.28)" : "0 0 0 rgba(0,0,0,0)",
             }}
             transition={{ type: "spring", stiffness: 600, damping: 30 }}
             className="relative inline-flex items-center gap-1.5 overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-100 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-300"
             aria-label="Beğen"
-            disabled={cooldown}
+            disabled={likeCooldown}
           >
-            {/* parıltı şeridi */}
             <span
               aria-hidden
               className="pointer-events-none absolute inset-0 -translate-x-[120%] skew-x-[-20deg] bg-gradient-to-r from-transparent via-white/50 to-transparent transition-transform duration-600"
@@ -226,7 +226,27 @@ function IdeaCard({
             <AnimatedNumber value={item.votes} className="tabular-nums" />
           </motion.button>
 
-          <Stat icon={Users} value={item.contributors} label="katkı" />
+          {/* Dislike */}
+          <motion.button
+            onClick={clickDislike}
+            whileHover={{ scale: 1.04, y: -1 }}
+            whileTap={{ scale: 0.95 }}
+            animate={{
+              boxShadow: dislikeCooldown ? "0 10px 24px rgba(244,63,94,0.28)" : "0 0 0 rgba(0,0,0,0)",
+            }}
+            transition={{ type: "spring", stiffness: 600, damping: 30 }}
+            className="relative inline-flex items-center gap-1.5 overflow-hidden rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-sm font-semibold text-rose-800 ring-1 ring-rose-100 hover:bg-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-300"
+            aria-label="Beğenme"
+            disabled={dislikeCooldown}
+          >
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 -translate-x-[120%] skew-x-[-20deg] bg-gradient-to-r from-transparent via-white/50 to-transparent transition-transform duration-600"
+              style={{ transitionDuration: "600ms" }}
+            />
+            <ThumbsDown className="h-4 w-4" />
+            <AnimatedNumber value={item.dislikes} className="tabular-nums" />
+          </motion.button>
         </div>
       </div>
     </motion.div>
@@ -294,11 +314,12 @@ export default function FikirlerPage() {
     return byQuery;
   }, [list, filterProject, q]);
 
-  /* ——— Oy artır — güvenli tek setState ——— */
+  /* ——— Oy artır/azalt — güvenli tek setState ——— */
   function upvote(id: string) {
-    setList((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, votes: i.votes + 1 } : i))
-    );
+    setList((prev) => prev.map((i) => (i.id === id ? { ...i, votes: i.votes + 1 } : i)));
+  }
+  function downvote(id: string) {
+    setList((prev) => prev.map((i) => (i.id === id ? { ...i, dislikes: i.dislikes + 1 } : i)));
   }
 
   function addIdea() {
@@ -310,7 +331,7 @@ export default function FikirlerPage() {
         title: form.title.trim(),
         description: form.description.trim(),
         votes: 0,
-        contributors: 1,
+        dislikes: 0,
         comments: 0,
         status: "new",
       },
@@ -400,7 +421,7 @@ export default function FikirlerPage() {
         <div className="grid grid-cols-1 gap-4">
           <AnimatePresence initial={false}>
             {filtered.map((idea) => (
-              <IdeaCard key={idea.id} item={idea} onUpvote={upvote} />
+              <IdeaCard key={idea.id} item={idea} onUpvote={upvote} onDownvote={downvote} />
             ))}
           </AnimatePresence>
           {filtered.length === 0 && (
