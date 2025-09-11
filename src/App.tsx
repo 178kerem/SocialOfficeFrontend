@@ -1,7 +1,9 @@
-import { useState } from "react";
+// src/App.tsx
+import  { useState, useEffect,type ReactNode } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import Navbar from "@/components/navbar";
+import Navbar from "@/navbar";
 import Register from "@/pages/LoginRegister/register";
+import Login from "@/pages/LoginRegister/login";
 import InterestSelect from "@/pages/InterestsSelect";
 import EventsPage from "@/pages/events";
 import CalendarPage from "./pages/calendar";
@@ -13,110 +15,126 @@ import ProfileDashboard from "./pages/profile";
 import IdeasPage from "./pages/AdminPages/fikirSecimPage";
 import EtkinlikTalepOnayPage from "./pages/AdminPages/talepEtkinlikOnayPage";
 import SettingsPage from "./pages/settings";
-import Login from "./pages/LoginRegister/login";
-import IlgiTakip from "./pages/AdminPages/ilgiAlanıtakip";   
+import IlgiTakip from "./pages/AdminPages/ilgiAlanıtakip";
 import EtkinlikOnOnayPage from "./pages/AdminPages/talepEdilenEtkinliklerOnOnay";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 type Profile = {
-  firstName: string; 
-  lastName: string; 
+  userId: string;
+  fullName: string;
   email: string;
-  sicil: string; 
-  dept: string; 
-  unit: string;
 };
 
 export default function App() {
-  const [profile, setProfile] = useState<Profile | null>(null);
+  return (
+    <AuthProvider>
+      <MainApp />
+    </AuthProvider>
+  );
+}
+
+function MainApp() {
+  const [profile, setProfile] = useState<Profile | null>(() => {
+    try {
+      const raw = localStorage.getItem("profile");
+      return raw ? (JSON.parse(raw) as Profile) : null;
+    } catch {
+      return null;
+    }
+  });
   const [interests, setInterests] = useState<string[]>([]);
   const navigate = useNavigate();
+  const auth = useAuth();
+
+  // Eğer auth.logout() çağrıldıysa profile'ı temizle
+  useEffect(() => {
+    if (!auth.isAuthenticated) {
+      setProfile(null);
+      try { localStorage.removeItem("profile"); } catch {}
+    }
+  }, [auth.isAuthenticated]);
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Sol sabit navbar */}
       <Navbar fixed />
 
-      {/* İçerik: nav dar (w-16) iken ml-16, hover’da ml-64 */}
       <div className="ml-16 peer-hover/nav:ml-64 transition-[margin-left] duration-300">
         <div className="min-h-screen">
           <Routes>
-            {/* Hepsi KİLİTSİZ */}
+            {/* Login */}
             <Route
-              path="/register"
+              path="/login"
               element={
-                <Register
-                  onSuccess={(form) => {
-                    setProfile(form);
-                    navigate("/interests");
-                  }}
-                />
-              }
-            />
+                <Login
+                  onSuccess={({ token, profile: p, remember }) => {
+                    // AuthContext'e token yaz (remember parametresi AuthContext'e göre saklar)
+                    auth.login(token, p.email, remember);
 
-            <Route
-              path="/interests"
-              element={
-                <InterestSelect
-                  initial={interests}
-                  onDone={(sel) => {
-                    setInterests(sel);
+                    // Profile state + persist
+                    const profileToStore: Profile = { userId: p.userId, fullName: p.fullName, email: p.email };
+                    setProfile(profileToStore);
+                    try { localStorage.setItem("profile", JSON.stringify(profileToStore)); } catch (e) { console.warn(e); }
+
                     navigate("/events");
                   }}
                 />
               }
             />
 
-
+            {/* Register */}
             <Route
-              path="/events"
+              path="/register"
               element={
+                <Register
+                  onSuccess={(form) => {
+                    // Register tamamlandığında profile state istersen setlenebilir; burada örnek:
+                    const profileFromRegister: Profile = {
+                      userId: form.sicil ?? "", // eğer backend yeni Id dönerse onu kullan
+                      fullName: `${form.firstName} ${form.lastName}`,
+                      email: form.email,
+                    };
+                    setProfile(profileFromRegister);
+                    try { localStorage.setItem("profile", JSON.stringify(profileFromRegister)); } catch {}
+                    navigate("/interests");
+                  }}
+                />
+              }
+            />
+
+            {/* Interests */}
+            <Route path="/interests" element={<InterestSelect initial={interests} onDone={(sel) => { setInterests(sel); navigate("/events"); }} />} />
+
+            {/* Protected Pages */}
+            <Route path="/events" element={
+              <ProtectedRoute>
                 <div className="p-6">
                   <div className="mb-4 flex items-center justify-between">
                     <div className="text-sm text-slate-600">
                       {profile ? (
                         <>
-                          <b>{profile.firstName} {profile.lastName}</b> • {profile.email} • {interests.length} ilgi alanı
+                          <b>{profile.fullName}</b> • {profile.email} • {interests.length} ilgi alanı
                         </>
-                      ) : (
-                        "Profil bilgisi yok"
-                      )}
+                      ) : "Profil bilgisi yok"}
                     </div>
                   </div>
-
                   <EventsPage />
                 </div>
-              }
-            />
+              </ProtectedRoute>
+            } />
 
+            <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+            <Route path="/requests" element={<ProtectedRoute><RequestsPage /></ProtectedRoute>} />
+            <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfileDashboard /></ProtectedRoute>} />
+            <Route path="/fikirler" element={<ProtectedRoute><FikirlerPage /></ProtectedRoute>} />
+            <Route path="/talepler" element={<ProtectedRoute><TaleplerPage /></ProtectedRoute>} />
+            <Route path="/admin/etkinlik-on-onay" element={<ProtectedRoute><EtkinlikOnOnayPage /></ProtectedRoute>} />
+            <Route path="/admin/fikir-secim" element={<ProtectedRoute><IdeasPage /></ProtectedRoute>} />
+            <Route path="/admin/ilgi-alani-takip" element={<ProtectedRoute><IlgiTakip /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/admin/talep-etkinlik-onay" element={<ProtectedRoute><EtkinlikTalepOnayPage /></ProtectedRoute>} />
 
-            <Route path="/events"element={<EventsPage />}/>
-
-            <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/requests" element={<RequestsPage />} />
-            <Route path="/notifications" element={<NotificationsPage />} />
-            <Route path="/profile" element={<ProfileDashboard />} />
-            <Route path="/fikirler" element={<FikirlerPage />} />
-            <Route path="/talepler" element={<TaleplerPage />} />
-
-            <Route path="/admin/etkinlik-on-onay" element={<EtkinlikOnOnayPage />} />
-
-
-            <Route path="/admin/fikir-secim" element={<IdeasPage />} />
-           
-            <Route path="/admin/ilgi-alani-takip" element={<IlgiTakip />} />   
-
-            {/* Default yönlendirmeler */}
-
-            <Route path="/login" element={<Login />} />
-             <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/admin/fikir-secim" element={<IdeasPage />} />
-            <Route path="/admin/talep-etkinlik-onay" element={<EtkinlikTalepOnayPage />} />
-            <Route path="/ayarlar" element={<SettingsPage />} />
-            
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-
-
+            {/* Defaults */}
             <Route path="/" element={<Navigate to="/register" replace />} />
             <Route path="*" element={<Navigate to="/events" replace />} />
           </Routes>
@@ -124,4 +142,10 @@ export default function App() {
       </div>
     </div>
   );
+}
+
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const auth = useAuth();
+  if (!auth.isAuthenticated) return <Navigate to="/login" replace />;
+  return <>{children}</>;
 }
