@@ -1,5 +1,4 @@
-// src/App.tsx
-import  { useState, useEffect,type ReactNode } from "react";
+import  { useState, useEffect, type ReactNode } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "@/navbar";
 import Register from "@/pages/LoginRegister/register";
@@ -42,15 +41,18 @@ function MainApp() {
       return null;
     }
   });
+
   const [interests, setInterests] = useState<string[]>([]);
   const navigate = useNavigate();
   const auth = useAuth();
 
-  // Eğer auth.logout() çağrıldıysa profile'ı temizle
+  // Logout olunca profile temizle
   useEffect(() => {
     if (!auth.isAuthenticated) {
       setProfile(null);
-      try { localStorage.removeItem("profile"); } catch {}
+      try {
+        localStorage.removeItem("profile");
+      } catch {}
     }
   }, [auth.isAuthenticated]);
 
@@ -67,13 +69,22 @@ function MainApp() {
               element={
                 <Login
                   onSuccess={({ token, profile: p, remember }) => {
-                    // AuthContext'e token yaz (remember parametresi AuthContext'e göre saklar)
                     auth.login(token, p.email, remember);
 
-                    // Profile state + persist
-                    const profileToStore: Profile = { userId: p.userId, fullName: p.fullName, email: p.email };
+                    const profileToStore: Profile = {
+                      userId: p.userId,
+                      fullName: p.fullName,
+                      email: p.email,
+                    };
                     setProfile(profileToStore);
-                    try { localStorage.setItem("profile", JSON.stringify(profileToStore)); } catch (e) { console.warn(e); }
+                    try {
+                      localStorage.setItem(
+                        "profile",
+                        JSON.stringify(profileToStore)
+                      );
+                    } catch (e) {
+                      console.warn(e);
+                    }
 
                     navigate("/events");
                   }}
@@ -82,57 +93,134 @@ function MainApp() {
             />
 
             {/* Register */}
+            <Route path="/register" element={<Register />} />
+
+            {/* Interests */}
             <Route
-              path="/register"
+              path="/interests"
               element={
-                <Register
-                  onSuccess={(form) => {
-                    // Register tamamlandığında profile state istersen setlenebilir; burada örnek:
-                    const profileFromRegister: Profile = {
-                      userId: form.sicil ?? "", // eğer backend yeni Id dönerse onu kullan
-                      fullName: `${form.firstName} ${form.lastName}`,
-                      email: form.email,
-                    };
-                    setProfile(profileFromRegister);
-                    try { localStorage.setItem("profile", JSON.stringify(profileFromRegister)); } catch {}
-                    navigate("/interests");
-                  }}
-                />
+                <ProtectedRoute>
+                  <InterestSelect
+                    initial={interests}
+                    onDone={(sel) => {
+                      setInterests(sel);
+                      navigate("/events");
+                    }}
+                  />
+                </ProtectedRoute>
               }
             />
 
-            {/* Interests */}
-            <Route path="/interests" element={<InterestSelect initial={interests} onDone={(sel) => { setInterests(sel); navigate("/events"); }} />} />
-
-            {/* Protected Pages */}
-            <Route path="/events" element={
-              <ProtectedRoute>
-                <div className="p-6">
-                  <div className="mb-4 flex items-center justify-between">
-                    <div className="text-sm text-slate-600">
-                      {profile ? (
-                        <>
-                          <b>{profile.fullName}</b> • {profile.email} • {interests.length} ilgi alanı
-                        </>
-                      ) : "Profil bilgisi yok"}
+            {/* Protected Routes */}
+            <Route
+              path="/events"
+              element={
+                <ProtectedRoute>
+                  <div className="p-6">
+                    <div className="mb-4 flex items-center justify-between">
+                      <div className="text-sm text-slate-600">
+                        {profile ? (
+                          <>
+                            <b>{profile.fullName}</b>
+                          </>
+                        ) : (
+                          "Profil bilgisi yok"
+                        )}
+                      </div>
                     </div>
+                    <EventsPage />
                   </div>
-                  <EventsPage />
-                </div>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
-            <Route path="/requests" element={<ProtectedRoute><RequestsPage /></ProtectedRoute>} />
-            <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><ProfileDashboard /></ProtectedRoute>} />
-            <Route path="/fikirler" element={<ProtectedRoute><FikirlerPage /></ProtectedRoute>} />
-            <Route path="/talepler" element={<ProtectedRoute><TaleplerPage /></ProtectedRoute>} />
-            <Route path="/admin/etkinlik-on-onay" element={<ProtectedRoute><EtkinlikOnOnayPage /></ProtectedRoute>} />
-            <Route path="/admin/fikir-secim" element={<ProtectedRoute><IdeasPage /></ProtectedRoute>} />
-            <Route path="/admin/ilgi-alani-takip" element={<ProtectedRoute><IlgiTakip /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-            <Route path="/admin/talep-etkinlik-onay" element={<ProtectedRoute><EtkinlikTalepOnayPage /></ProtectedRoute>} />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/calendar"
+              element={
+                <ProtectedRoute>
+                  <CalendarPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/requests"
+              element={
+                <ProtectedRoute>
+                  <RequestsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <NotificationsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfileDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/fikirler"
+              element={
+                <ProtectedRoute>
+                  <FikirlerPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/talepler"
+              element={
+                <ProtectedRoute>
+                  <TaleplerPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/etkinlik-on-onay"
+              element={
+                <ProtectedRoute>
+                  <EtkinlikOnOnayPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/fikir-secim"
+              element={
+                <ProtectedRoute>
+                  <IdeasPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/ilgi-alani-takip"
+              element={
+                <ProtectedRoute>
+                  <IlgiTakip />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/talep-etkinlik-onay"
+              element={
+                <ProtectedRoute>
+                  <EtkinlikTalepOnayPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Defaults */}
             <Route path="/" element={<Navigate to="/register" replace />} />
