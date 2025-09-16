@@ -1,4 +1,5 @@
-import  { useState, useEffect, type ReactNode } from "react";
+// src/App.tsx
+import { useState, type ReactNode } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "@/navbar";
 import Register from "@/pages/LoginRegister/register";
@@ -47,50 +48,19 @@ function MainApp() {
   const auth = useAuth();
 
   // Logout olunca profile temizle
-  useEffect(() => {
-    if (!auth.isAuthenticated) {
-      setProfile(null);
-      try {
-        localStorage.removeItem("profile");
-      } catch {}
-    }
-  }, [auth.isAuthenticated]);
+  if (!auth.isAuthenticated && profile) {
+    setProfile(null);
+    localStorage.removeItem("profile");
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar fixed />
-
       <div className="ml-16 peer-hover/nav:ml-64 transition-[margin-left] duration-300">
         <div className="min-h-screen">
           <Routes>
             {/* Login */}
-            <Route
-              path="/login"
-              element={
-                <Login
-                  onSuccess={({ token, profile: p, remember }) => {
-                    auth.login(token, p.email, remember);
-
-                    const profileToStore: Profile = {
-                      userId: p.userId,
-                      fullName: p.fullName,
-                      email: p.email,
-                    };
-                    setProfile(profileToStore);
-                    try {
-                      localStorage.setItem(
-                        "profile",
-                        JSON.stringify(profileToStore)
-                      );
-                    } catch (e) {
-                      console.warn(e);
-                    }
-
-                    navigate("/events");
-                  }}
-                />
-              }
-            />
+            <Route path="/login" element={<Login />} />
 
             {/* Register */}
             <Route path="/register" element={<Register />} />
@@ -119,13 +89,7 @@ function MainApp() {
                   <div className="p-6">
                     <div className="mb-4 flex items-center justify-between">
                       <div className="text-sm text-slate-600">
-                        {profile ? (
-                          <>
-                            <b>{profile.fullName}</b>
-                          </>
-                        ) : (
-                          "Profil bilgisi yok"
-                        )}
+                        {profile ? <b>{profile.fullName}</b> : "Profil bilgisi yok"}
                       </div>
                     </div>
                     <EventsPage />
@@ -133,94 +97,17 @@ function MainApp() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/calendar"
-              element={
-                <ProtectedRoute>
-                  <CalendarPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/requests"
-              element={
-                <ProtectedRoute>
-                  <RequestsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/notifications"
-              element={
-                <ProtectedRoute>
-                  <NotificationsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <ProfileDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/fikirler"
-              element={
-                <ProtectedRoute>
-                  <FikirlerPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/talepler"
-              element={
-                <ProtectedRoute>
-                  <TaleplerPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/etkinlik-on-onay"
-              element={
-                <ProtectedRoute>
-                  <EtkinlikOnOnayPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/fikir-secim"
-              element={
-                <ProtectedRoute>
-                  <IdeasPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/ilgi-alani-takip"
-              element={
-                <ProtectedRoute>
-                  <IlgiTakip />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <SettingsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/talep-etkinlik-onay"
-              element={
-                <ProtectedRoute>
-                  <EtkinlikTalepOnayPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+            <Route path="/requests" element={<ProtectedRoute><RequestsPage /></ProtectedRoute>} />
+            <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfileDashboard /></ProtectedRoute>} />
+            <Route path="/fikirler" element={<ProtectedRoute><FikirlerPage /></ProtectedRoute>} />
+            <Route path="/talepler" element={<ProtectedRoute><TaleplerPage /></ProtectedRoute>} />
+            <Route path="/admin/etkinlik-on-onay" element={<ProtectedRoute><EtkinlikOnOnayPage /></ProtectedRoute>} />
+            <Route path="/admin/fikir-secim" element={<ProtectedRoute><IdeasPage /></ProtectedRoute>} />
+            <Route path="/admin/ilgi-alani-takip" element={<ProtectedRoute><IlgiTakip /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/admin/talep-etkinlik-onay" element={<ProtectedRoute><EtkinlikTalepOnayPage /></ProtectedRoute>} />
 
             {/* Defaults */}
             <Route path="/" element={<Navigate to="/register" replace />} />
