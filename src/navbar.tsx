@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth}  from "./context/AuthContext";
 import {
   CalendarDays,
   Calendar as CalendarIcon,
@@ -56,6 +57,7 @@ export default function Navbar({
 }: HoverExpandNavProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const auth = useAuth();
 
   const isPathActive = (href: string) =>
     location.pathname === href || location.pathname.startsWith(href + "/");
@@ -127,25 +129,30 @@ export default function Navbar({
                 variant="default"
               />
             ))}
+            
+            {/* Admin başlığı ve admin öğeleri sadece admin ise */}
+{auth.type === "admin" && (
+  <>
+    <li className="mt-3 px-3">
+      <span className="pointer-events-none hidden text-[10px] font-semibold uppercase tracking-wider text-slate-400/80 group-hover/nav:inline">
+        Yönetim
+      </span>
+    </li>
 
-            {/* Admin başlığı (expand olunca görünür) */}
-            <li className="mt-3 px-3">
-              <span className="pointer-events-none hidden text-[10px] font-semibold uppercase tracking-wider text-slate-400/80 group-hover/nav:inline">
-                Yönetim
-              </span>
-            </li>
+    {adminItems.map((item) => (
+      <NavButton
+        key={item.id}
+        item={item}
+        active={isActive(item)}
+        onClick={() => handleSelect(item)}
+        brandClass={brandClass}
+        variant="admin"
+      />
+    ))}
+  </>
+)}
 
-            {/* Admin öğeleri */}
-            {adminItems.map((item) => (
-              <NavButton
-                key={item.id}
-                item={item}
-                active={isActive(item)}
-                onClick={() => handleSelect(item)}
-                brandClass={brandClass}
-                variant="admin"
-              />
-            ))}
+            
           </ul>
 
           <div className="my-3 h-px bg-white/10" />

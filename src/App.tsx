@@ -1,6 +1,6 @@
 // src/App.tsx
 import { useState, type ReactNode } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import Navbar from "@/navbar";
 import Register from "@/pages/LoginRegister/register";
 import Login from "@/pages/LoginRegister/login";
@@ -46,6 +46,7 @@ function MainApp() {
   const [interests, setInterests] = useState<string[]>([]);
   const navigate = useNavigate();
   const auth = useAuth();
+  const location = useLocation();
 
   // Logout olunca profile temizle
   if (!auth.isAuthenticated && profile) {
@@ -53,9 +54,12 @@ function MainApp() {
     localStorage.removeItem("profile");
   }
 
+  // Login & Register sayfalarında Navbar gizle
+  const hideNavbar = ["/login", "/register"].includes(location.pathname);
+
   return (
     <div className="min-h-screen bg-slate-50">
-      <Navbar fixed />
+      {!hideNavbar && <Navbar fixed />}
       <div className="ml-16 peer-hover/nav:ml-64 transition-[margin-left] duration-300">
         <div className="min-h-screen">
           <Routes>

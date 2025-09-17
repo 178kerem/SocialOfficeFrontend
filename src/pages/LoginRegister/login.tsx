@@ -65,9 +65,12 @@ export default function Login() {
       const token = payload.token ?? "";
       const userId = String(payload.userId ?? "");
       const email = payload.email ?? form.email;
+      const type = payload.type ?? ""; // ✅ backend'den geliyor olmalı
+
+
 
       if (res.status === 200 && token) {
-        auth.login(token, email, userId, form.remember);
+        auth.login(token, email, userId, type, form.remember);
         navigate("/events");
       } else {
         alert("Giriş başarısız!");
