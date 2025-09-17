@@ -4,10 +4,12 @@ type AuthContextType = {
   token: string | null;
   email: string | null;
   userId: string | null;
+  type: string | null; // ✅ ekleme
   isAuthenticated: boolean;
-  login: (token: string, email: string, userId: string, remember?: boolean) => void;
+  login: (token: string, email: string, userId: string, type: string, remember?: boolean) => void;
   logout: () => void;
 };
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -16,31 +18,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [email, setEmail] = useState<string | null>(() => localStorage.getItem("email"));
   const [userId, setUserId] = useState<string | null>(() => localStorage.getItem("userId"));
 
-  const isAuthenticated = !!token;
+  // ✅ Hem token hem userId varsa kullanıcı giriş yapmış sayılır
+  const isAuthenticated = !!(token && userId);
+  const [type, setType] = useState<string | null>(() => localStorage.getItem("type"));
 
-  const login = (newToken: string, newEmail: string, newUserId: string, remember = true) => {
-    setToken(newToken);
-    setEmail(newEmail);
-    setUserId(newUserId);
+  const login = (newToken: string, newEmail: string, newUserId: string, newType: string, remember = true) => {
+  setToken(newToken);
+  setEmail(newEmail);
+  setUserId(newUserId);
+  setType(newType);
 
-    if (remember) {
-      localStorage.setItem("token", newToken);
-      localStorage.setItem("email", newEmail);
-      localStorage.setItem("userId", newUserId);
-    }
-  };
+  if (remember) {
+    localStorage.setItem("token", newToken);
+    localStorage.setItem("email", newEmail);
+    localStorage.setItem("userId", newUserId);
+    localStorage.setItem("type", newType);
+  }
+};
+
 
   const logout = () => {
-    setToken(null);
-    setEmail(null);
-    setUserId(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("email");
-    localStorage.removeItem("userId");
-  };
+  setToken(null);
+  setEmail(null);
+  setUserId(null);
+  setType(null);
+  localStorage.removeItem("token");
+  localStorage.removeItem("email");
+  localStorage.removeItem("userId");
+  localStorage.removeItem("type");
+};
+
 
   return (
-    <AuthContext.Provider value={{ token, email, userId, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ token, email, userId,type, isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
