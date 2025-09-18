@@ -1,13 +1,4 @@
-import { useMemo, useState } from "react"
-
-type Group = "Spor" | "Kültürel" | "Seyahat & Outdoor" | "Diğer"
-
-const DATA: Record<Group, string[]> = {
-  "Spor": ["Futbol", "Basketbol", "Voleybol", "Yüzme", "Tenis", "Bisiklet", "Koşu", "Doğa Yürüyüşü", "Kayak"],
-  "Kültürel": ["Kitap Okuma", "Sinema", "Tiyatro", "Müzik", "Resim", "Fotoğraf", "Seramik", "Dil Öğrenme"],
-  "Seyahat & Outdoor": ["Kamp", "Trekking", "Karavan", "Dağcılık", "Dalış", "Off-road", "Keşif Turları"],
-  "Diğer": ["Yemek Yapma", "Kahve", "Puzzle", "Model/Maket", "Oyun", "Satranç", "Bahçecilik"],
-}
+import { useMemo, useState, useEffect } from "react"
 
 export default function InterestSelect({
   initial = [],
@@ -17,8 +8,33 @@ export default function InterestSelect({
   onDone: (selected: string[]) => void
 }) {
   const [selected, setSelected] = useState<string[]>(initial)
+  const [interests, setInterests] = useState<string[]>([])
   const selectedSet = useMemo(() => new Set(selected), [selected])
   const minReached = selected.length >= 3
+
+ useEffect(() => {
+  async function loadInterests() {
+    try {
+      const token = localStorage.getItem("token"); // login sonrası token
+      if (!token) throw new Error("Token yok!");
+
+      const res = await fetch("/api/Interest", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+      const data: { name: string }[] = await res.json();
+      setInterests(data.map(i => i.name));
+    } catch (err) {
+      console.error("Interests yüklenemedi:", err);
+    }
+  }
+  loadInterests();
+}, []);
 
   function add(tag: string) {
     if (selectedSet.has(tag)) return
@@ -30,7 +46,6 @@ export default function InterestSelect({
 
   return (
     <div className="min-h-[calc(100vh-56px)] bg-slate-50 p-6">
-      {/* grid: sol içerik + sağ panel */}
       <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
         {/* Sol içerik */}
         <section>
@@ -41,33 +56,33 @@ export default function InterestSelect({
             </p>
           </header>
 
-          {/* 4 ana kutu aynı anda */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {(Object.keys(DATA) as Group[]).map((group) => (
-              <div key={group} className="rounded-xl border border-slate-200 bg-white p-4">
-                <h2 className="text-sm font-medium text-slate-700 mb-3">{group}</h2>
-                <div className="flex flex-wrap gap-2">
-                  {DATA[group].map((tag) => {
-                    const disabled = selectedSet.has(tag)
-                    return (
-                      <button
-                        key={tag}
-                        onClick={() => add(tag)}
-                        disabled={disabled}
-                        className={`rounded-full border px-3 py-1.5 text-sm transition
-                          ${disabled
+          {/* Tüm interestler */}
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
+            <div className="flex flex-wrap gap-2">
+              {interests.length === 0 ? (
+                <p className="text-sm text-slate-500">Yükleniyor...</p>
+              ) : (
+                interests.map((tag) => {
+                  const disabled = selectedSet.has(tag)
+                  return (
+                    <button
+                      key={tag}
+                      onClick={() => add(tag)}
+                      disabled={disabled}
+                      className={`rounded-full border px-3 py-1.5 text-sm transition
+                        ${
+                          disabled
                             ? "border-slate-200 text-slate-400 bg-slate-100 cursor-not-allowed"
                             : "border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50"
-                          }`}
-                        title={disabled ? "Zaten seçildi" : "Seç"}
-                      >
-                        {tag}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            ))}
+                        }`}
+                      title={disabled ? "Zaten seçildi" : "Seç"}
+                    >
+                      {tag}
+                    </button>
+                  )
+                })
+              )}
+            </div>
           </div>
         </section>
 
@@ -84,7 +99,10 @@ export default function InterestSelect({
             ) : (
               <div className="flex flex-wrap gap-2">
                 {selected.map((tag) => (
-                  <span key={tag} className="inline-flex items-center gap-2 rounded-full bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 text-sm">
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-2 rounded-full bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 text-sm"
+                  >
                     {tag}
                     <button
                       onClick={() => remove(tag)}

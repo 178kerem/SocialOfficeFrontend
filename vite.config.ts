@@ -11,4 +11,9 @@ export default defineConfig({
       "@": resolve(fileURLToPath(new URL("./src", import.meta.url))),
     },
   },
+  server: {
+    proxy: {
+      '/api': 'http://localhost:5069', // backend portun
+    },
+  },
 })
