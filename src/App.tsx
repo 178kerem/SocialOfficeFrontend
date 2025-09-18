@@ -4,7 +4,7 @@ import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-
 import Navbar from "@/navbar";
 import Register from "@/pages/LoginRegister/register";
 import Login from "@/pages/LoginRegister/login";
-import InterestSelect from "@/pages/InterestsSelect";
+import InterestSelect from "@/pages/InterestSelect";
 import EventsPage from "@/pages/events";
 import CalendarPage from "./pages/calendar";
 import RequestsPage from "./pages/requestEvents";

@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo from "../../assets/logo.png";
 import api from "../../api";
+import { useAuth } from "../../context/AuthContext";
 
 type FormState = {
   firstName: string;
@@ -41,6 +42,7 @@ export default function Register() {
   const [showPwd2, setShowPwd2] = useState(false);
 
   const navigate = useNavigate();
+  const auth = useAuth();
 
   const errors = useMemo(() => {
     const e: Partial<Record<keyof FormState, string>> = {};
@@ -85,12 +87,29 @@ export default function Register() {
 
     try {
       setSubmitting(true);
-      const payload = { ...form };
-      await api.post<FormState>("/user", payload);
 
-      toast.success("Kayıt başarılı! Hoşgeldiniz.");
+      // 1. Kullanıcıyı kaydet
+      await api.post<FormState>("/user", form);
 
-      setTimeout(() => navigate("/interests"), 1000);
+      // 2. Kayıttan sonra otomatik login ol
+      const res: any = await api.post("/User/login", {
+        email: form.email,
+        password: form.password,
+      });
+
+      const payload = res?.data?.data ?? res?.data ?? {};
+      const token = payload.token ?? "";
+      const userId = String(payload.userId ?? "");
+      const email = payload.email ?? form.email;
+      const type = payload.type ?? "";
+
+      if (res.status === 200 && token) {
+        auth.login(token, email, userId, type, true);
+        toast.success("Kayıt başarılı! Hoşgeldiniz.");
+        navigate("/interests");
+      } else {
+        toast.error("Kayıt başarılı ama giriş yapılamadı.");
+      }
     } catch (err) {
       console.error("Kullanıcı oluşturulamadı:", err);
       toast.error("Kayıt başarısız. Lütfen tekrar deneyin.");
@@ -232,10 +251,6 @@ export default function Register() {
   );
 }
 
-// Input ve SearchSelect componentleri yukarıdaki haliyle aynı kalabilir
-
-
-
 /* ---------- Input Component ---------- */
 function Input(props: {
   name: keyof FormState;
@@ -307,7 +322,6 @@ function SearchSelect({
   onBlurTouched?: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [q, setQ] = useState("");
   const boxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -323,13 +337,8 @@ function SearchSelect({
     };
   }, []);
 
-  const filtered = options.filter(o =>
-    o.toLocaleLowerCase("tr-TR").includes(q.toLocaleLowerCase("tr-TR"))
-  );
-
   const select = (v: string) => {
     onChange(v);
-    setQ("");
     setOpen(false);
   };
 
@@ -337,46 +346,36 @@ function SearchSelect({
     <label className="flex flex-col gap-1 text-sm">
       <span className="text-slate-700">{label}</span>
       <div className="relative z-40" ref={boxRef}>
-        <input
-          value={open ? q : value}
-          onChange={e => setQ(e.target.value)}
-          onFocus={() => {
-            setOpen(true);
-            setQ("");
-          }}
-          onBlur={() =>
-            setTimeout(() => {
-              setOpen(false);
-              onBlurTouched?.();
-            }, 100)
-          }
-          placeholder={placeholder}
+        <button
+          type="button"
+          onClick={() => setOpen(o => !o)}
           className={[
-            "h-11 w-full rounded-xl border px-3 text-sm outline-none transition-shadow",
+            "h-11 w-full rounded-xl border px-3 text-sm text-left outline-none transition-shadow",
+            value ? "text-slate-900" : "text-slate-400",
             error
               ? "border-rose-300 ring-2 ring-rose-100 focus:ring-rose-200"
               : "border-slate-200 ring-2 ring-transparent focus:border-slate-300 focus:ring-sky-200",
           ].join(" ")}
-        />
+        >
+          {value || placeholder}
+        </button>
+
         <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">▼</div>
+
         {open && (
           <div className="absolute z-50 mt-1 w-full rounded-xl border border-slate-200 bg-white shadow-lg max-h-52 overflow-auto">
-            {filtered.length === 0 ? (
-              <div className="px-3 py-2 text-xs text-slate-500">Eşleşen seçenek yok</div>
-            ) : (
-              filtered.map(opt => (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => select(opt)}
-                  className={`block w-full px-3 py-2 text-left text-sm ${
-                    opt === value ? "bg-sky-50 text-sky-700" : "text-slate-700 hover:bg-slate-50"
-                  }`}
-                >
-                  {opt}
-                </button>
-              ))
-            )}
+            {options.map(opt => (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => select(opt)}
+                className={`block w-full px-3 py-2 text-left text-sm ${
+                  opt === value ? "bg-sky-50 text-sky-700" : "text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                {opt}
+              </button>
+            ))}
           </div>
         )}
       </div>

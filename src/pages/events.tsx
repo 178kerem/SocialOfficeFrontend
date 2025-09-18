@@ -1,5 +1,5 @@
 // src/pages/events.tsx
-import React, { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -45,6 +45,7 @@ export default function EventsPage() {
 
     fetchEvents();
   }, [auth]);
+  
 
   const categories = useMemo(() => {
     const set = new Set(events.map((e) => e.kategori));
